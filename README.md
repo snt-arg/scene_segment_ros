@@ -24,9 +24,10 @@ Here you can see the benchmarking results of the work:
 
 | Method / Image Resolution | 480x360   | 640x480   | 720x540   |
 | ------------------------- | --------- | --------- | --------- |
-| Segment Anything (SAM)    | ? seconds | ? seconds | ? seconds |
-| Semantic SAM              | ? seconds | ? seconds | ? seconds |
-| FAST SAM                  | ? seconds | ? seconds | ? seconds |
+| Segment Anything (SAM)    | 6.8 seconds | 6.9 seconds | 6.9 seconds |
+| Semantic SAM              | ~2 minutes | ~2 minutes | ~2 minutes |
+| FAST SAM                  | 2.4 seconds | 4.5 seconds | 6.5 seconds |
+| Mobile SAM                | 4.1 seconds | 4.7 seconds | 4.3 seconds |
 
 ## 📅 TODO
 
