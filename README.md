@@ -26,6 +26,7 @@ Here you can see the benchmarking results of the work:
 | ------------------------- | --------- | --------- | --------- |
 | Segment Anything (SAM)    | 6.8 seconds | 6.9 seconds | 6.9 seconds |
 | Semantic SAM              | ~2 minutes | ~2 minutes | ~2 minutes |
+| Segment Any RGBD          | ~2 minutes | ~2 minutes | ~2 minutes |
 | FAST SAM                  | 2.4 seconds | 4.5 seconds | 6.5 seconds |
 | Mobile SAM                | 4.1 seconds | 4.7 seconds | 4.3 seconds |
 
