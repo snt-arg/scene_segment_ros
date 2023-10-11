@@ -1,0 +1,12 @@
+<launch>
+    <!-- Arguments -->
+    <arg name="node_name" default="segmenter" />
+
+    <!-- Configurations -->
+    <arg name="configs" default="$(find ars_remote_controller)/config/params.yaml" />
+
+    <!-- Nodes -->
+    <node name="$(arg node_name_controller)" pkg="ars_remote_controller" type="ars_remote_controller.py" output="screen" >
+        <rosparam command="load" file="$(arg configs)" />
+    </node>
+</launch>
