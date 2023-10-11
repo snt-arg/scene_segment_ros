@@ -1,2 +1,2 @@
-sample:
-  init: 0
+params:
+  modelName: "FastSAM"
