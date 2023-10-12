@@ -23,7 +23,7 @@ def fastSamInit(name: str, path: str):
     return model
 
 
-def fastSamSegmenter(image, model):
+def fastSamSegmenter(image, model, imageSize=640, conf=0.4, iou=0.9):
     """
     Segments the given image using Fast SAM
 
@@ -33,6 +33,12 @@ def fastSamSegmenter(image, model):
         The input image for segmentation
     model: dict
         A registered model of Fast SAM
+    imageSize: int
+        The width of the input image (default: 640)
+    conf: float
+        The object confidence threshold (default: 0.4)
+    iou: float
+        Annotations filtering threshold (default: 0.4)
 
     Returns
     -------
@@ -41,14 +47,14 @@ def fastSamSegmenter(image, model):
     """
     print()
     # Generating mask (everything result)
-    # maskGenerator = model(
-    #     image,
-    #     device=DEVICE,
-    #     retina_masks=True,
-    #     imgsz=fastSam_imageSize,
-    #     conf=fastSam_conf,
-    #     iou=fastSam_iou
-    # )
-    # # Process
-    # masks = FastSAMPrompt(image, maskGenerator, device=DEVICE)
-    # return masks
+    maskGenerator = model(
+        image,
+        device=DEVICE,
+        retina_masks=True,
+        imgsz=imageSize,
+        conf=conf,
+        iou=iou
+    )
+    # Process
+    masks = FastSAMPrompt(image, maskGenerator, device=DEVICE)
+    return masks
