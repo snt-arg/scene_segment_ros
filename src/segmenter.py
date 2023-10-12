@@ -16,8 +16,11 @@ class Segmenter:
         # Get parameters
         print('Loading configuration parameters ...\n')
         params = rospy.get_param('~params')
+        self.iou = params['model_params']['iou']
+        self.conf = params['model_params']['conf']
         modelName = params['model_params']['model_name']
         modelPath = params['model_params']['model_path']
+        self.imageSize = params['image_params']['image_size']
         rawImageTopic = params['ros_topics']['raw_image_topic']
         segImageTopic = params['ros_topics']['segmented_image_topic']
 
@@ -40,7 +43,8 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
             # Processing
-            masks = fastSamSegmenter(cvImage, self.fsam)
+            masks = fastSamSegmenter(
+                cvImage, self.fsam, self.imageSize, self.conf, self.iou)
             # fastSamShowOutput(masks)
 
             # Publish the processed image
