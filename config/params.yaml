@@ -7,11 +7,10 @@ params:
   model_params:
     model_name: "FastSAM"
     model_path: "include/FastSAM-s.pt"
-    point_prompt: [[0, 0]] # A point like "[[x1,y1],[x2,y2]]"
-    # Multiple boxes like [[x1,y1,w1,h1],[x2,y2,w2,h2]]
+    point_prompt: [[0, 0]]
     box_prompt: [[0, 0, 0, 0]]
-    text_prompt: None # Use text prompt eg: "a dog"
-    point_label: [0] # [1,0] 0: background, 1: foreground
-    iou: 0.9 # Annots filtering threshold
-    conf: 0.4 # Object confidence threshold
-    contour: False # Draw contours
+    text_prompt: ""
+    point_label: [0]
+    iou: 0.9
+    conf: 0.4
+    contour: False
