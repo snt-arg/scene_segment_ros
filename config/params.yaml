@@ -1,2 +1,17 @@
 params:
-  modelName: "FastSAM"
+  image_params:
+    image_size: 640
+  ros_topics:
+    raw_image_topic: "/img"
+    segmented_image_topic: "/seg"
+  model_params:
+    model_name: "FastSAM"
+    model_path: "include/FastSAM-s.pt"
+    point_prompt: [[0, 0]] # A point like "[[x1,y1],[x2,y2]]"
+    # Multiple boxes like [[x1,y1,w1,h1],[x2,y2,w2,h2]]
+    box_prompt: [[0, 0, 0, 0]]
+    text_prompt: None # Use text prompt eg: "a dog"
+    point_label: [0] # [1,0] 0: background, 1: foreground
+    iou: 0.9 # Annots filtering threshold
+    conf: 0.4 # Object confidence threshold
+    contour: False # Draw contours
