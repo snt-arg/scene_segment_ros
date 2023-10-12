@@ -1,10 +1,8 @@
 # Scene Segmenter
 
+![Scene Segmenter](demo.gif "Scene Segmenter")
+
 A framework for real-time segmentation of given images (video frames) based on the given parameters and configurations. The main use case of this repository is to be used in [vS-Graphs](https://github.com/snt-arg/visual_sgraphs), where the camera output seen by the robot is sent to the current package to be segmented.
-
-## 📝 Prerequisites
-
-The required libraries ...
 
 ## 📚 Preparation
 
@@ -63,6 +61,10 @@ Here you can see the benchmarking results of the work in the table below. Some o
 
 - Finding a realtime Semantic Segmentation framework
   - Benchmarking and comparing
+- Excluding unnecessary segments
+- Removing logs
+- Providing segment information
+- Searching for semantic entities (object detection)
 - Merging it with ROS-based ORB-SLAM for mapping
 - Testing with a robot
   - Drone/Spot
