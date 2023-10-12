@@ -2,6 +2,7 @@
 
 import rospy
 from sensor_msgs.msg import Image
+from output import fastSamVisualizer
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
 from modelRunner import fastSamInit, fastSamSegmenter
@@ -23,6 +24,10 @@ class Segmenter:
         self.imageSize = params['image_params']['image_size']
         rawImageTopic = params['ros_topics']['raw_image_topic']
         segImageTopic = params['ros_topics']['segmented_image_topic']
+        self.pointPrompt = params['model_params']['point_prompt']
+        self.boxPrompt = params['model_params']['box_prompt']
+        self.pointLabel = params['model_params']['point_label']
+        self.counters = params['model_params']['contour']
 
         # Initial the segmentation module
         self.fsam = fastSamInit(modelName, modelPath)
@@ -45,11 +50,13 @@ class Segmenter:
             # Processing
             masks = fastSamSegmenter(
                 cvImage, self.fsam, self.imageSize, self.conf, self.iou)
-            # fastSamShowOutput(masks)
+            segmentedImage = fastSamVisualizer(
+                masks, self.pointPrompt, self.boxPrompt, self.pointLabel, self.counters)
 
             # Publish the processed image
-            processed_image_msg = self.bridge.cv2_to_imgmsg(cvImage, "bgr8")
-            self.publisherSeg.publish(processed_image_msg)
+            processedImgMsg = self.bridge.cv2_to_imgmsg(
+                segmentedImage, "bgr8")
+            self.publisherSeg.publish(processedImgMsg)
 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))
