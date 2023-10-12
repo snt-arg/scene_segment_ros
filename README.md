@@ -28,20 +28,20 @@ pip install -r src/requirements.txt
 
 ## 🔨 Configurations
 
-| Main Category  | Parameter               | Default        | Description                                                  |
-| -------------- | ----------------------- | -------------- | ------------------------------------------------------------ |
-| `image_params` | `image_params`          | 640            | width of the input image                                     |
-| `ros_topics`   | `raw_image_topic`       | `/img`         | raw image topic                                              |
-|                | `segmented_image_topic` | `/seg`         | segmented image topic                                        |
-| `model_params` | `model_name`            | -              | name of the model                                            |
-|                | `model_path`            | -              | path of the model file                                       |
-|                | `point_prompt`          | [[0, 0]]       | a point for segmentation (e.g., [[x1,y1],[x2,y2]])           |
-|                | `box_prompt`            | [[0, 0, 0, 0]] | boxes for segmentation (e.g., [[x1,y1,w1,h1],[x2,y2,w2,h2]]) |
-|                | `text_prompt`           | -              | text prompt (e.g., "a dog")                                  |
-|                | `point_label`           | [0]            | 0: background, 1: foreground                                 |
-|                | `iou`                   | 0.9            | annots filtering threshold                                   |
-|                | `conf`                  | 0.4            | object confidence threshold                                  |
-|                | `contour`               | False          | draw contours                                                |
+| Main Category  | Parameter               | Default        | Description                  |
+| -------------- | ----------------------- | -------------- | ---------------------------- |
+| `image_params` | `image_params`          | 640            | width of the input image     |
+| `ros_topics`   | `raw_image_topic`       | `/img`         | raw image topic              |
+|                | `segmented_image_topic` | `/seg`         | segmented image topic        |
+| `model_params` | `model_name`            | -              | name of the model            |
+|                | `model_path`            | -              | path of the model file       |
+|                | `point_prompt`          | [[0, 0]]       | a point for segmentation     |
+|                | `box_prompt`            | [[0, 0, 0, 0]] | boxes for segmentation       |
+|                | `text_prompt`           | -              | text prompt (e.g., "a dog")  |
+|                | `point_label`           | [0]            | 0: background, 1: foreground |
+|                | `iou`                   | 0.9            | annots filtering threshold   |
+|                | `conf`                  | 0.4            | object confidence threshold  |
+|                | `contour`               | False          | draw contours                |
 
 ## 🚀 Running the Code
 

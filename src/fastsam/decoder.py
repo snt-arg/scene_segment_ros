@@ -53,7 +53,7 @@ class FastSAMDecoder:
         elif box_prompt is not None:
             ann = self.box_prompt(bbox=box_prompt)
             return ann
-        elif text_prompt is not None:
+        elif (text_prompt is not None) and (len(text_prompt) > 1):
             ann = self.text_prompt(text=text_prompt)
             return ann
         else:
