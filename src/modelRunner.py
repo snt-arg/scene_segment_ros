@@ -1,20 +1,25 @@
+import os
 import torch
-from .fastsam import FastSAM, FastSAMPrompt
+from fastsam import FastSAM, FastSAMPrompt
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 
-def fastSamInit(name: str):
+def fastSamInit(name: str, path: str):
     """
     Initializes Fast SAM (Semantic Anything Model) and returns the registered model
 
     Returns
     -------
-    model: dict
-        A registered model of Fast SAM
+    model: str
+        The name of the model (in this case, FAST SAM)
+    path: str
+        The path to the model (in this case, FAST SAM)
     """
+    print(f'Initializing "{name}" model ...')
     # Initialization
-    model = FastSAM(name)
+    model = FastSAM(path)
+    print('Model loaded and is ready to use!\n')
     return model
 
 

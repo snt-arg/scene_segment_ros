@@ -2,8 +2,8 @@ params:
   image_params:
     image_size: 640
   ros_topics:
-    raw_image_topic: "/img"
-    segmented_image_topic: "/seg"
+    raw_image_topic: "/camera/color/image_raw"
+    segmented_image_topic: "/camera/color/image_segment"
   model_params:
     model_name: "FastSAM"
     model_path: "include/FastSAM-s.pt"

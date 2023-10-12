@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 import rospy
-import cv2 as cv
-import numpy as np
-from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
+from modelRunner import fastSamInit, fastSamSegmenter
 
 
 class Segmenter:
@@ -15,25 +14,41 @@ class Segmenter:
         cleanMemory()
 
         # Get parameters
-        print('Loading configuration parameters ...')
+        print('Loading configuration parameters ...\n')
         params = rospy.get_param('~params')
         modelName = params['model_params']['model_name']
         modelPath = params['model_params']['model_path']
+        rawImageTopic = params['ros_topics']['raw_image_topic']
+        segImageTopic = params['ros_topics']['segmented_image_topic']
+
+        # Initial the segmentation module
+        self.fsam = fastSamInit(modelName, modelPath)
 
         # Subscribers
-        # rospy.Subscriber(pose_topic, PoseStamped, self.sub_pose)
+        rospy.Subscriber(rawImageTopic, Image, self.segmentation)
 
         # Publishers
-        # publisherMask = rospy.Publisher('result_mask', Image, queue_size=10)
+        self.publisherSeg = rospy.Publisher(
+            segImageTopic, Image, queue_size=10)
 
-        # Read input images
-        # image = cv.imread(imagePath)
-        # image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        # ROS Bridge
+        self.bridge = CvBridge()
 
-        # # Run Segmentation
-        # fsam = fastSamInit()
-        # masks = fastSamSegmenter(image, fsam)
-        # fastSamShowOutput(masks)
+    def segmentation(self, imageMessage):
+        try:
+            # Convert the ROS Image message to a CV2 image
+            cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
+
+            # Processing
+            masks = fastSamSegmenter(cvImage, self.fsam)
+            # fastSamShowOutput(masks)
+
+            # Publish the processed image
+            processed_image_msg = self.bridge.cv2_to_imgmsg(cvImage, "bgr8")
+            self.publisherSeg.publish(processed_image_msg)
+
+        except CvBridgeError as e:
+            rospy.logerr("CvBridge Error: {0}".format(e))
 
 
 # Run the program
