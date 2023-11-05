@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>segmenter_ros</name>
+  <name>segmenter_ros2</name>
   <version>0.1.0</version>
   <description>The Scene Segmentation package</description>
 
@@ -12,6 +12,9 @@
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <url type="website">https://github.com/snt-arg/scene_segment_ros</url>
+
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
