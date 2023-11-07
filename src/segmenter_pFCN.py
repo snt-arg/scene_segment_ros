@@ -29,14 +29,14 @@ class Segmenter:
         self.model, self.cfg = FCNInit(modelName, modelPath, modelConfig)
 
         # Subscribers
-        # rospy.Subscriber(rawImageTopic, Image, self.segmentation)
+        rospy.Subscriber(rawImageTopic, Image, self.segmentation)
 
-        # # Publishers
-        # self.publisherSeg = rospy.Publisher(
-        #     segImageTopic, Image, queue_size=10)
+        # Publishers
+        self.publisherSeg = rospy.Publisher(
+            segImageTopic, Image, queue_size=10)
 
-        # # ROS Bridge
-        # self.bridge = CvBridge()
+        # ROS Bridge
+        self.bridge = CvBridge()
 
     def segmentation(self, imageMessage):
         try:
@@ -45,9 +45,11 @@ class Segmenter:
 
             # Processing
             predictions = FCNSegmenter(cvImage, self.model)
+            segmentedImage = FCNVisualizer(cvImage, predictions, self.cfg)
 
             # Publish the processed image
-            processedImgMsg = FCNVisualizer(cvImage, predictions, self.cfg)
+            processedImgMsg = self.bridge.cv2_to_imgmsg(
+                segmentedImage, "bgr8")
             self.publisherSeg.publish(processedImgMsg)
 
         except CvBridgeError as e:
