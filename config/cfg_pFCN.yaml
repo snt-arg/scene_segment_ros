@@ -6,6 +6,6 @@ params:
     segmented_image_topic: "/camera/color/image_segment"
   model_params:
     model_name: "PanopticFCN"
-    model_path: "include/FastSAM-s.pt"
+    model_path: "include/panoptic_fcn_r50_512_3x.pth"
     model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
     conf: 0.4

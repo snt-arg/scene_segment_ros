@@ -32,7 +32,9 @@ pip install -r src/requirements.txt
 
 ### III. Installing Models
 
-Download one of the model checkpoints ([PanopticFCN](https://github.com/dvlab-research/PanopticFCN#results) or [Fast-SAM](https://github.com/CASIA-IVA-Lab/FastSAM#replicate-demo)) from the repository, and specify the path in the `config/cfg_[model].yaml` file.
+Download one of the model checkpoints ([PanopticFCN](https://github.com/dvlab-research/PanopticFCN#results) or [Fast-SAM](https://github.com/CASIA-IVA-Lab/FastSAM#replicate-demo)) from the repository, and put it in the `/include` folder. Remember that you need to specify the path in the `config/cfg_[model].yaml` file (e.g., `include/[model].pth`).
+
+⚠️ It is recommended to put the models in the `/include` directory. The main reason for better integration of different frameworks, we read the **absolute path** of this folder to target a model.
 
 The next step is to install the required frameworks:
 

@@ -87,10 +87,13 @@ def FCNInit(name: str, modelPath: str, configPath: str):
         The initialized model
     """
     print(f'Initializing "{name}" model ...')
+    # Convert to absolute path
+    configPath = getRootAbsolutePath(configPath)
+    modelPath = getRootAbsolutePath(modelPath)
     # Initialization
     cfg = get_cfg()
     add_panopticfcn_config(cfg)
-    cfg.merge_from_file(getRootAbsolutePath(configPath))
+    cfg.merge_from_file(configPath)
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = modelPath
     cfg.DEVICE = DEVICE.type
