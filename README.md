@@ -30,6 +30,10 @@ Install the required `Python` libraries for running this program using the comma
 pip install -r src/requirements.txt
 ```
 
+### III. Downloading Models
+
+Download one of the model checkpoints ([PanopticFCN](https://github.com/dvlab-research/PanopticFCN#results) or [Fast-SAM](https://github.com/CASIA-IVA-Lab/FastSAM#replicate-demo)) from the repository, and specify the path in the `config/cfg_[model].yaml` file.
+
 ## 🔨 Configurations
 
 The system has different configurations for each of the segmentation libraries, accessible from `/config` folder. In the table below, you can see these configurations in details.
