@@ -1,3 +1,5 @@
+from detectron2.data import MetadataCatalog
+from detectron2.utils.visualizer import Visualizer
 from fastsam.utils import convert_box_xywh_to_xyxy
 
 
@@ -46,3 +48,31 @@ def fastSamVisualizer(masks, pointPrompt, boxPrompts, pointLabel, counters):
     )
     # Return
     return result
+
+
+def FCNVisualizer(image, predictions, cfg):
+    """
+    Shows the output of panoptic or instance segmentation
+
+    Parameters
+    -------
+    image: Mat
+        The input image
+    predictions: dict
+        Dict of segmentation results
+    cfg: CfgNode
+        The configuration object
+
+    Returns
+    -------
+    result: Mat
+        The segmented visualized image
+    """
+    # Init
+    panoptic_seg, segments_info = predictions["panoptic_seg"]
+    visualizer = Visualizer(image[:, :, ::-1],
+                            MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+    result = visualizer.draw_panoptic_seg_predictions(
+        panoptic_seg.to("cpu"), segments_info)
+    # Return
+    return result.get_image()[:, :, ::-1]
