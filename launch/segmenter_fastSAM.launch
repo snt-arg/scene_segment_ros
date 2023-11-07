@@ -3,10 +3,10 @@
     <arg name="node_name" default="segmenter_ros" />
 
     <!-- Configurations -->
-    <arg name="configs" default="$(find segmenter_ros)/config/params.yaml" />
+    <arg name="configs" default="$(find segmenter_ros)/config/cfg_fastSAM.yaml" />
 
     <!-- Nodes -->
-    <node name="$(arg node_name)" pkg="segmenter_ros" type="segmenter.py" output="screen" >
+    <node name="$(arg node_name)" pkg="segmenter_ros" type="segmenter_fastSAM.py" output="screen" >
         <rosparam command="load" file="$(arg configs)" />
     </node>
 </launch>

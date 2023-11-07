@@ -2,8 +2,7 @@
 
 import rospy
 from sensor_msgs.msg import Image
-from segmenter_ros2.msg import SegResult, Mask, Pixel
-from output import fastSamVisualizer
+from segmenter_ros.msg import SegResult, Mask, Pixel
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
 from temp import init_params
@@ -25,7 +24,7 @@ import matplotlib.pyplot as plt
 class Segmenter:
     def __init__(self) -> None:
         init_params()
-        
+
         # Initial checks
         monitorParams()
         cleanMemory()
@@ -61,11 +60,13 @@ class Segmenter:
 
     def init_model(self) -> None:
         cfg = get_cfg()
-        cfg.merge_from_file(model_zoo.get_config_file("COCO-PanopticSegmentation/panoptic_fpn_R_50_3x.yaml"))
-        cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-PanopticSegmentation/panoptic_fpn_R_50_3x")
-        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  
+        cfg.merge_from_file(model_zoo.get_config_file(
+            "COCO-PanopticSegmentation/panoptic_fpn_R_50_3x.yaml"))
+        cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(
+            "COCO-PanopticSegmentation/panoptic_fpn_R_50_3x")
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
         cfg.MODEL.DEVICE = 'cpu'
-        
+
         # cfg.merge_from_file("src/scene_segment_ros2/config/PanopticFCN-R50-400-3x-FAST.yaml")
         # cfg.MODEL.WEIGHTS = "https://drive.google.com/file/d/1csiLLsZT8dUQj7XETo9vsjXfAh5r7KZU/view?usp=sharing"
         # cfg.MODEL.IGNORE_VALUE = -1
@@ -73,7 +74,7 @@ class Segmenter:
         self.predictor = DefaultPredictor(cfg)
 
         self.metadata = MetadataCatalog.get("coco_2017_val_panoptic")
-        
+
     def segmentation(self, imageMessage: Image) -> None:
         try:
             # Convert the ROS Image message to a CV2 image
@@ -91,7 +92,8 @@ class Segmenter:
 
             # Generate the message
             t = time.time()
-            msg = self._generate_message(masks, imageMessage) # change the rgb image to the depth image later
+            # change the rgb image to the depth image later
+            msg = self._generate_message(masks, imageMessage)
             print(f"generating message: {time.time()-t}")
 
             self.publisherSeg.publish(msg)
@@ -121,7 +123,7 @@ class Segmenter:
                     masks[anns[id-1]["category_id"]].append((x, y))
 
         return masks
-    
+
     def _generate_message(self, masks: dict, image: np.ndarray) -> SegResult:
         msg = SegResult()
         msg.Image = image
@@ -140,7 +142,6 @@ class Segmenter:
             msg.masks.append(mask)
 
         return msg
-            
 
 
 # Run the program
