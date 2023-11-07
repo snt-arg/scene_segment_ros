@@ -2,7 +2,13 @@
 
 ![Scene Segmenter](demo.gif "Scene Segmenter")
 
-A framework for real-time segmentation of given images (video frames) based on the given parameters and configurations. The main use case of this repository is to be used in [vS-Graphs](https://github.com/snt-arg/visual_sgraphs), where the camera output seen by the robot is sent to the current package to be segmented.
+A framework for real-time (semantic )segmentation of given images (video frames) based on the given parameters and configurations. The main use case of this repository is to be used in [vS-Graphs](https://github.com/snt-arg/visual_sgraphs), where the camera output seen by the robot is sent to the current package to be segmented.
+
+The framework currently covers two main modules, including **[Fast-SAM](https://github.com/CASIA-IVA-Lab/FastSAM)** for real-time scene segmentation and **[PanopticFCN](https://github.com/dvlab-research/PanopticFCN)** for real-time scene segmentation and semantic object detection.
+
+### 📊 Models Benchmarking
+
+[Here](https://github.com/snt-arg/scene_segmentation_benchmark) you can see the benchmarking results of the work using different libraries.
 
 ## 📚 Preparation
 
@@ -26,6 +32,8 @@ pip install -r src/requirements.txt
 
 ## 🔨 Configurations
 
+The system has different configurations for each of the segmentation libraries, accessible from `/config` folder. In the table below, you can see these configurations in details.
+
 | Main Category  | Parameter               | Default        | Description                  |
 | -------------- | ----------------------- | -------------- | ---------------------------- |
 | `image_params` | `image_params`          | 640            | width of the input image     |
@@ -43,28 +51,16 @@ pip install -r src/requirements.txt
 
 ## 🚀 Running the Code
 
-How to run the code ....
+You can run the below launch files (accessible from `/launch` folder):
 
-## 📊 Segmenter Models Benchmarking
-
-Here you can see the benchmarking results of the work in the table below. Some of these libraries are already available in [this repository](https://github.com/snt-arg/scene_segmentation).
-
-| Method / Image Resolution                                                      | 480x360     | 640x480     | 720x540     |
-| ------------------------------------------------------------------------------ | ----------- | ----------- | ----------- |
-| [Segment Anything (SAM)](https://github.com/facebookresearch/segment-anything) | 6.8 seconds | 6.9 seconds | 6.9 seconds |
-| Semantic SAM                                                                   | ~2 minutes  | ~2 minutes  | ~2 minutes  |
-| [Segment Any RGBD](https://github.com/Jun-CEN/SegmentAnyRGBD)                  | ~2 minutes  | ~2 minutes  | ~2 minutes  |
-| [FAST SAM](https://github.com/CASIA-IVA-Lab/FastSAM)                           | 2.4 seconds | 4.5 seconds | 6.5 seconds |
-| Mobile SAM                                                                     | 4.1 seconds | 4.7 seconds | 4.3 seconds |
+- **Fast-SAM**: `roslaunch segmenter_ros segmenter_fastSAM.launch`
+- **PanopticFCN**: `roslaunch segmenter_ros segmenter_pFCN.launch`
 
 ## 📅 TODO
 
-- Finding a realtime Semantic Segmentation framework
-  - Benchmarking and comparing
 - Excluding unnecessary segments
 - Removing logs
 - Providing segment information
-- Searching for semantic entities (object detection)
 - Merging it with ROS-based ORB-SLAM for mapping
 - Testing with a robot
   - Drone/Spot

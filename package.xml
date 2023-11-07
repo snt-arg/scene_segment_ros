@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>segmenter_ros2</name>
+  <name>segmenter_ros</name>
   <version>0.1.0</version>
   <description>The Scene Segmentation package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <maintainer email="ali.tourani@uni.lu">Ali Tourani</maintainer>
+  <maintainer email="hriday.bavle@uni.lu">Hriday Bavle</maintainer>  
+  <maintainer email="ejazsaad0332@gmail.com">Saad Ejaz</maintainer>
+  <maintainer email="maych727@gmail.com">Maxime Capdouze</maintainer>
+  <maintainer email="maych727@gmail.com">Christophe Mayers</maintainer>  
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <license>GPLv3</license>
