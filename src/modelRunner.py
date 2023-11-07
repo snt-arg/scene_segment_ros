@@ -1,6 +1,7 @@
 import torch
 from detectron2.config import get_cfg
 from fastsam import FastSAM, FastSAMPrompt
+from utils.helpers import getRootAbsolutePath
 from detectron2.engine import DefaultPredictor
 from panopticfcn import add_panopticfcn_config
 
@@ -89,7 +90,7 @@ def FCNInit(name: str, modelPath: str, configPath: str):
     # Initialization
     cfg = get_cfg()
     add_panopticfcn_config(cfg)
-    cfg.merge_from_file(configPath)
+    cfg.merge_from_file(getRootAbsolutePath(configPath))
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
     cfg.MODEL.WEIGHTS = modelPath
     cfg.DEVICE = DEVICE.type
