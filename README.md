@@ -4,7 +4,7 @@
 
 A framework for real-time (semantic )segmentation of given images (video frames) based on the given parameters and configurations. The main use case of this repository is to be used in [vS-Graphs](https://github.com/snt-arg/visual_sgraphs), where the camera output seen by the robot is sent to the current package to be segmented.
 
-The framework currently covers two main modules, including **[Fast-SAM](https://github.com/CASIA-IVA-Lab/FastSAM)** for real-time scene segmentation and **[PanopticFCN](https://github.com/dvlab-research/PanopticFCN)** for real-time scene segmentation and semantic object detection.
+The framework currently covers two main modules, including **[FastSAM](https://github.com/CASIA-IVA-Lab/FastSAM)** for real-time scene segmentation and **[PanopticFCN](https://github.com/dvlab-research/PanopticFCN)** for real-time scene segmentation and semantic object detection.
 
 ### 📊 Models Benchmarking
 
@@ -30,9 +30,14 @@ Install the required `Python` libraries for running this program using the comma
 pip install -r src/requirements.txt
 ```
 
-### III. Downloading Models
+### III. Installing Models
 
 Download one of the model checkpoints ([PanopticFCN](https://github.com/dvlab-research/PanopticFCN#results) or [Fast-SAM](https://github.com/CASIA-IVA-Lab/FastSAM#replicate-demo)) from the repository, and specify the path in the `config/cfg_[model].yaml` file.
+
+The next step is to install the required frameworks:
+
+- For **FastSAM**, you need to install required _OpenAI_ modules using `pip install git+https://github.com/openai/CLIP.git`.
+- For **PanopticFCN**, you need to install _Detectron2_ using `git clone https://github.com/facebookresearch/detectron2.git` and then, `python -m pip install -e detectron2`.
 
 ## 🔨 Configurations
 
@@ -57,7 +62,7 @@ The system has different configurations for each of the segmentation libraries, 
 
 You can run the below launch files (accessible from `/launch` folder):
 
-- **Fast-SAM**: `roslaunch segmenter_ros segmenter_fastSAM.launch`
+- **FastSAM**: `roslaunch segmenter_ros segmenter_fastSAM.launch`
 - **PanopticFCN**: `roslaunch segmenter_ros segmenter_pFCN.launch`
 
 ## 📅 TODO
