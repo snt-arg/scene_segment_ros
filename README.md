@@ -1,6 +1,8 @@
 # Scene Segmenter
 
-![Scene Segmenter](demo.gif "Scene Segmenter")
+| Scene Segmentation using **Fast-SAM**    | Semantic Segmentation using **PanopticFCN**        |
+| ---------------------------------------- | -------------------------------------------------- |
+| ![Fast-SAM](demo_fastSAM.gif "Fast-SAM") | ![PanopticFCN](demo_panopticFCN.gif "PanopticFCN") |
 
 A framework for real-time (semantic )segmentation of given images (video frames) based on the given parameters and configurations. The main use case of this repository is to be used in [vS-Graphs](https://github.com/snt-arg/visual_sgraphs), where the camera output seen by the robot is sent to the current package to be segmented.
 
