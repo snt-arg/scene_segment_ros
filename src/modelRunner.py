@@ -98,6 +98,7 @@ def FCNInit(name: str, modelPath: str, configPath: str):
     cfg.MODEL.WEIGHTS = modelPath
     cfg.DEVICE = DEVICE.type
     model = DefaultPredictor(cfg)
+    print('Model loaded and is ready to use!\n')
     return model, cfg
 
 
