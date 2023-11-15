@@ -9,13 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
 )
 
-add_message_files(
-  FILES 
-  Pixel.msg
-  Mask.msg
-  SegResult.msg
-)
-
 generate_messages(
   DEPENDENCIES
   std_msgs
