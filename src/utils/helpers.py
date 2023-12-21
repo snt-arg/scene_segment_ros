@@ -48,3 +48,35 @@ def getRootAbsolutePath(relativePath: str):
         os.path.join(root, relativePath))
     # Return
     return absolutePath
+
+
+def getFilteredSegments(segments: dict, classes: list):
+    """
+    Returns a list of segments filtered by the defined classes
+
+    Parameters
+    -------
+    segments: list
+        The list of segments
+    classes: list
+        The list of classes to be filtered
+
+    Returns
+    -------
+    filteredSegments: list
+        The list of filtered segments
+    """
+    # Initialize
+    newSegmentInfo = []
+    newSegments = segments
+    # Get the segment values and segment info
+    segmentValues, segmentsInfo = segments["panoptic_seg"]
+    # Iterate over the segmentInfo to find the desired segments
+    for segment in segmentsInfo:
+        # Filter the segments
+        if segment["category_id"] in classes:
+            newSegmentInfo.append(segment)
+    # Make a tuple
+    newSegments["panoptic_seg"] = (segmentValues, newSegmentInfo)
+    # Return
+    return newSegments

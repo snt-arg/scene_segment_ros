@@ -63,12 +63,36 @@ The system has different configurations for each of the segmentation libraries, 
 |                | `conf`                  | 0.4            | object confidence threshold          |
 |                | `contour`               | False          | draw contours                        |
 
+### Results Filtration
+
+In order get only the classes that you want (such as `wall` or `floor`), you need to know the identifier of the class in **Detectron2** ([link](https://github.com/facebookresearch/detectron2/blob/main/detectron2/data/datasets/builtin_meta.py)) and set the `category_id` in the [configuration file](config/cfg_pFCN.yaml). For instance, the array `[43, 52]` can detect `[floors, walls]` in the scene.
+
 ## 🚀 Running the Code
 
 You can run the below launch files (accessible from `/launch` folder):
 
 - **FastSAM**: `roslaunch segmenter_ros segmenter_fastSAM.launch`
 - **PanopticFCN**: `roslaunch segmenter_ros segmenter_pFCN.launch`
+
+## 🤖 ROS Topics, Params and Services
+
+### Subscribed Topics
+
+| Topic                     | Description                         |
+| ------------------------- | ----------------------------------- |
+| `/camera/color/image_raw` | for providing input to be segmented |
+
+### Published Topics
+
+| Topic                         | Description                             |
+| ----------------------------- | --------------------------------------- |
+| `/camera/color/image_segment` | the output semantically segmented topic |
+
+### Params
+
+| Param | Description |
+| ----- | ----------- |
+| `TBD` | -           |
 
 ## 📅 TODO
 

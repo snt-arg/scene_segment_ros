@@ -17,6 +17,7 @@ class Segmenter:
         # Get parameters
         print('Loading configuration parameters ...\n')
         params = rospy.get_param('~params')
+        self.classes = params['output']['classes']
         self.conf = params['model_params']['conf']
         modelName = params['model_params']['model_name']
         modelPath = params['model_params']['model_path']
@@ -44,7 +45,7 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
             # Processing
-            predictions = FCNSegmenter(cvImage, self.model)
+            predictions = FCNSegmenter(cvImage, self.model, self.classes)
             segmentedImage = FCNVisualizer(cvImage, predictions, self.cfg)
 
             # Publish the processed image
