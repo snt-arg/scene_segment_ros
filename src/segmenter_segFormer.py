@@ -2,9 +2,9 @@
 
 import time
 import rospy
-from output import FCNVisualizer, FCNEntropyVisualizer
+from output import SegFormerVisualizer, SegFormerEntropyVisualizer
 from sensor_msgs.msg import Image
-from modelRunner import FCNSegmenter, FCNInit
+from modelRunner import SegFormerSegmenter, SegFormerInit
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
 
@@ -18,17 +18,14 @@ class Segmenter:
         # Get parameters
         print('Loading configuration parameters ...\n')
         params = rospy.get_param('~params')
-        self.classes = params['output']['classes']
         self.conf = params['model_params']['conf']
         modelName = params['model_params']['model_name']
-        modelPath = params['model_params']['model_path']
-        modelConfig = params['model_params']['model_config']
         self.imageSize = params['image_params']['image_size']
         rawImageTopic = params['ros_topics']['raw_image_topic']
         segImageTopic = params['ros_topics']['segmented_image_topic']
 
         # Initial the segmentation module
-        self.model, self.cfg = FCNInit(modelName, modelPath, modelConfig)
+        self.model, self.image_processor = SegFormerInit(modelName)
 
         # Subscribers
         rospy.Subscriber(rawImageTopic, Image, self.segmentation)
@@ -38,7 +35,7 @@ class Segmenter:
             segImageTopic, Image, queue_size=10)
         self.publisherUnc = rospy.Publisher(
             segImageTopic + "/uncertainty", Image, queue_size=10)
-        
+
         # ROS Bridge
         self.bridge = CvBridge()
 
@@ -48,17 +45,18 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
             # Processing
-            predictions = FCNSegmenter(cvImage, self.model, self.classes)
-            segmentedImage = FCNVisualizer(cvImage, predictions, self.cfg)
-            segmentedUncImage = FCNEntropyVisualizer(cvImage, predictions, self.cfg)
+            predictions = SegFormerSegmenter(cvImage, self.model, self.image_processor)
+            segmentedImage = SegFormerVisualizer(cvImage, predictions)
+            segmentedEntropyImage = SegFormerEntropyVisualizer(cvImage, predictions)
+
             # Publish the processed image
             processedImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
             self.publisherSeg.publish(processedImgMsg)
 
-            processedUncImgMsg = self.bridge.cv2_to_imgmsg(
-                segmentedUncImage, "bgr8")
-            self.publisherUnc.publish(processedUncImgMsg)
+            processedEntropyImgMsg = self.bridge.cv2_to_imgmsg(
+                segmentedEntropyImage, "bgr8")
+            self.publisherUnc.publish(processedEntropyImgMsg)
 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))
