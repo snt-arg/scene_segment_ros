@@ -85,9 +85,11 @@ You can run the below launch files (accessible from `/launch` folder):
 
 ### Published Topics
 
-| Topic                         | Description                             |
-| ----------------------------- | --------------------------------------- |
-| `/camera/color/image_segment` | the output semantically segmented topic |
+| Topic                                       | Description                                         |
+| ------------------------------------------- | --------------------------------------------------- |
+| `/camera/color/image_segment`               | the output semantically segmented topic             |
+| `/camera/color/image_segment/probabilities` | the probabilities of semantically segmented objects |
+| `/camera/color/image_segment/uncertainty`   | the uncertainity of semantically segmented topic    |
 
 ### Params
 
