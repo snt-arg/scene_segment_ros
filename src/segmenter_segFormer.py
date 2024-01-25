@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
-import time
 import rospy
-from output import SegFormerVisualizer, SegFormerEntropyVisualizer
 from sensor_msgs.msg import Image
-from modelRunner import SegFormerSegmenter, SegFormerInit
 from cv_bridge import CvBridge, CvBridgeError
-from utils.semantic_utils import cleanMemory, monitorParams
+from utils.helpers import cleanMemory, monitorParams
+from modelRunner import SegFormerSegmenter, SegFormerInit
+from output import SegFormerVisualizer, SegFormerEntropyVisualizer
 
 
 class Segmenter:
@@ -45,9 +44,11 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
             # Processing
-            predictions = SegFormerSegmenter(cvImage, self.model, self.image_processor)
+            predictions = SegFormerSegmenter(
+                cvImage, self.model, self.image_processor)
             segmentedImage = SegFormerVisualizer(cvImage, predictions)
-            segmentedEntropyImage = SegFormerEntropyVisualizer(cvImage, predictions)
+            segmentedEntropyImage = SegFormerEntropyVisualizer(
+                cvImage, predictions)
 
             # Publish the processed image
             processedImgMsg = self.bridge.cv2_to_imgmsg(
