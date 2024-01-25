@@ -1,8 +1,8 @@
 import cv2
+import torch
+import numpy as np
 from detectron2.data import MetadataCatalog
 from detectron2.utils.visualizer import Visualizer
-import numpy as np
-import torch
 from fastsam.utils import convert_box_xywh_to_xyxy
 from utils.semantic_utils import label2rgb, ADE20K_COLOR_MAP
 
@@ -81,6 +81,7 @@ def FCNVisualizer(image, predictions, cfg):
     # Return
     return result.get_image()[:, :, ::-1]
 
+
 def FCNEntropyVisualizer(image, predictions, cfg):
     """
     Shows the output of panoptic or instance segmentation
@@ -103,13 +104,15 @@ def FCNEntropyVisualizer(image, predictions, cfg):
     # Init
     semantic_segmentation = predictions["sem_seg"]
     # Compute the entropy
-    entropy = -torch.sum(semantic_segmentation * torch.log(semantic_segmentation+1e-10), axis=0) * 255
+    entropy = -torch.sum(semantic_segmentation *
+                         torch.log(semantic_segmentation+1e-10), axis=0) * 255
     entropy = entropy.to("cpu").numpy().astype(np.uint8)
     # Generate color map from probabilities (black 0 - white 1)
     color_map = cv2.applyColorMap(
         (entropy).astype(np.uint8), cv2.COLORMAP_BONE)
 
     return color_map
+
 
 def SegFormerVisualizer(image, predictions):
     """
@@ -138,6 +141,7 @@ def SegFormerVisualizer(image, predictions):
     # Return
     return color_map
 
+
 def SegFormerEntropyVisualizer(image, predictions):
     """
     Shows the output of panoptic or instance segmentation
@@ -148,14 +152,15 @@ def SegFormerEntropyVisualizer(image, predictions):
         The input image
     predictions: np.ndarray
         Matrix with class probabilities
-    
+
     Returns
     -------
     result: Mat
         The segmented visualized image
     """
     # Compute the entropy
-    entropy = -torch.sum(predictions * torch.log(predictions+1e-10), axis=0) * 255
+    entropy = -torch.sum(predictions *
+                         torch.log(predictions+1e-10), axis=0) * 255
     entropy = entropy.to("cpu").numpy().astype(np.uint8)
     # Generate color map from probabilities (black 0 - white 1)
     color_map = cv2.applyColorMap(

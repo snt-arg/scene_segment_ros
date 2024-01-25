@@ -73,6 +73,7 @@ You can run the below launch files (accessible from `/launch` folder):
 
 - **FastSAM**: `roslaunch segmenter_ros segmenter_fastSAM.launch`
 - **PanopticFCN**: `roslaunch segmenter_ros segmenter_pFCN.launch`
+- **SegFormer**: `roslaunch segmenter_ros segmenter_segFormer.launch`
 
 ## 🤖 ROS Topics, Params and Services
 
@@ -99,6 +100,6 @@ You can run the below launch files (accessible from `/launch` folder):
 - Excluding unnecessary segments
 - Removing logs
 - Providing segment information
-- Merging it with ROS-based ORB-SLAM for mapping
+- Merging it with vS-Graphs for mapping
 - Testing with a robot
   - Drone/Spot
