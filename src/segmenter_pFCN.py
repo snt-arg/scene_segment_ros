@@ -67,12 +67,8 @@ class Segmenter:
                 segmentedUncImage, "bgr8")
             self.publisherUnc.publish(processedUncImgMsg)
 
-            print("Publishing point cloud probabilities ...")
             labels = torch.argmax(predictions["sem_seg"], axis=0)
             unique_classes = torch.unique(labels)
-            print(f" * Unique classes: {unique_classes}")
-            print(f" * Width: {labels.shape[0]}")
-            print(f" * Height: {labels.shape[1]}")
             self.publisherProb.publish(pcdProbabilities)
 
         except CvBridgeError as e:
