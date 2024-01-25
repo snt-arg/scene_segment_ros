@@ -4,7 +4,7 @@ from detectron2.utils.visualizer import Visualizer
 import numpy as np
 import torch
 from fastsam.utils import convert_box_xywh_to_xyxy
-from utils.helpers import label2rgb, ADE20K_COLOR_MAP
+from utils.semantic_utils import label2rgb, ADE20K_COLOR_MAP
 
 
 def fastSamVisualizer(masks, pointPrompt, boxPrompts, pointLabel, counters):

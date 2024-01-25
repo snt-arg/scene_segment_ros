@@ -6,7 +6,7 @@ from output import SegFormerVisualizer, SegFormerEntropyVisualizer
 from sensor_msgs.msg import Image
 from modelRunner import SegFormerSegmenter, SegFormerInit
 from cv_bridge import CvBridge, CvBridgeError
-from utils.helpers import cleanMemory, monitorParams
+from utils.semantic_utils import cleanMemory, monitorParams
 
 
 class Segmenter:
