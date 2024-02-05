@@ -79,9 +79,9 @@ You can run the below launch files (accessible from `/launch` folder):
 
 ### Subscribed Topics
 
-| Topic                     | Description                         |
-| ------------------------- | ----------------------------------- |
-| `/camera/color/image_raw` | for providing input to be segmented |
+| Topic                       | Description                                                                                     |
+| --------------------------- | ----------------------------------------------------------------------------------------------- |
+| `/orb_slam3/keyframe_image` | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) |
 
 ### Published Topics
 

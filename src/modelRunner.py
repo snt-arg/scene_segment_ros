@@ -150,10 +150,13 @@ def SegFormerInit(name: str):
     from transformers import AutoImageProcessor, SegformerForSemanticSegmentation
     print(f'Initializing "{name}" model ...')
     # Convert to absolute path
-    image_processor = AutoImageProcessor.from_pretrained("nvidia/segformer-b0-finetuned-ade-512-512")
-    model = SegformerForSemanticSegmentation.from_pretrained("nvidia/segformer-b0-finetuned-ade-512-512")
+    image_processor = AutoImageProcessor.from_pretrained(
+        "nvidia/segformer-b0-finetuned-ade-512-512")
+    model = SegformerForSemanticSegmentation.from_pretrained(
+        "nvidia/segformer-b0-finetuned-ade-512-512")
     model.eval()
     return model, image_processor
+
 
 def SegFormerSegmenter(image, model: SegformerForSemanticSegmentation, image_processor: AutoImageProcessor):
     """
@@ -176,7 +179,8 @@ def SegFormerSegmenter(image, model: SegformerForSemanticSegmentation, image_pro
     inputs = image_processor(images=image, return_tensors="pt")
     with torch.no_grad():
         outputs = model(**inputs)
-    logits = outputs.logits # shape (batch_size, num_labels, height/4, width/4)
+    # shape (batch_size, num_labels, height/4, width/4)
+    logits = outputs.logits
     # Get probabilities
     probs = torch.nn.functional.softmax(logits, dim=1)[0]
     # Filter the segments

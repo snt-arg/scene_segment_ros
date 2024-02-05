@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-import time
-
 import torch
 import rospy
-from output import FCNVisualizer, FCNEntropyVisualizer
-from sensor_msgs.msg import Image, PointCloud2
 from modelRunner import FCNSegmenter, FCNInit
 from cv_bridge import CvBridge, CvBridgeError
+from sensor_msgs.msg import Image, PointCloud2
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
+from output import FCNVisualizer, FCNEntropyVisualizer
+
 
 class Segmenter:
     def __init__(self):
@@ -42,7 +41,7 @@ class Segmenter:
             segImageTopic + "/uncertainty", Image, queue_size=10)
         self.publisherProb = rospy.Publisher(
             segImageTopic + "/probabilities", PointCloud2, queue_size=10)
-        
+
         # ROS Bridge
         self.bridge = CvBridge()
 
@@ -54,9 +53,11 @@ class Segmenter:
             # Processing
             predictions = FCNSegmenter(cvImage, self.model, self.classes)
             segmentedImage = FCNVisualizer(cvImage, predictions, self.cfg)
-            segmentedUncImage = FCNEntropyVisualizer(cvImage, predictions, self.cfg)
-            prediction_probs = torch.permute(predictions["sem_seg"], (1, 2, 0)).to("cpu").numpy()
-            pcdProbabilities = probabilities2ROSMsg(prediction_probs, 
+            segmentedUncImage = FCNEntropyVisualizer(
+                cvImage, predictions, self.cfg)
+            prediction_probs = torch.permute(
+                predictions["sem_seg"], (1, 2, 0)).to("cpu").numpy()
+            pcdProbabilities = probabilities2ROSMsg(prediction_probs,
                                                     imageMessage.header.stamp, imageMessage.header.frame_id)
             # Publish the processed image
             processedImgMsg = self.bridge.cv2_to_imgmsg(

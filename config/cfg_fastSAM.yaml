@@ -2,7 +2,7 @@ params:
   image_params:
     image_size: 640
   ros_topics:
-    raw_image_topic: "/camera/color/image_raw"
+    raw_image_topic: "/orb_slam3/keyframe_image"
     segmented_image_topic: "/camera/color/image_segment"
   model_params:
     model_name: "FastSAM"
