@@ -2,6 +2,7 @@
 
 import torch
 import rospy
+from std_msgs.msg import Header
 from modelRunner import FCNSegmenter, FCNInit
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image, PointCloud2
@@ -59,17 +60,25 @@ class Segmenter:
                 predictions["sem_seg"], (1, 2, 0)).to("cpu").numpy()
             pcdProbabilities = probabilities2ROSMsg(prediction_probs,
                                                     imageMessage.header.stamp, imageMessage.header.frame_id)
+
+            # Create a header with the current time
+            header = Header()
+            header.stamp = rospy.Time.now()
+
             # Publish the processed image
             processedImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
+            processedImgMsg.header = header
             self.publisherSeg.publish(processedImgMsg)
 
             processedUncImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedUncImage, "bgr8")
+            processedUncImgMsg.header = header
             self.publisherUnc.publish(processedUncImgMsg)
 
             labels = torch.argmax(predictions["sem_seg"], axis=0)
             unique_classes = torch.unique(labels)
+            pcdProbabilities.header = header
             self.publisherProb.publish(pcdProbabilities)
 
         except CvBridgeError as e:
