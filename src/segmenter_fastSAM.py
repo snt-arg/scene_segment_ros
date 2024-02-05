@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+from std_msgs.msg import Header
 from sensor_msgs.msg import Image
 from output import fastSamVisualizer
 from cv_bridge import CvBridge, CvBridgeError
@@ -53,9 +54,14 @@ class Segmenter:
             segmentedImage = fastSamVisualizer(
                 masks, self.pointPrompt, self.boxPrompt, self.pointLabel, self.counters)
 
+            # Create a header with the current time
+            header = Header()
+            header.stamp = rospy.Time.now()
+
             # Publish the processed image
             processedImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
+            processedImgMsg.header = header
             self.publisherSeg.publish(processedImgMsg)
 
         except CvBridgeError as e:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+from std_msgs.msg import Header
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
@@ -50,13 +51,19 @@ class Segmenter:
             segmentedEntropyImage = SegFormerEntropyVisualizer(
                 cvImage, predictions)
 
+            # Create a header with the current time
+            header = Header()
+            header.stamp = rospy.Time.now()
+
             # Publish the processed image
             processedImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
+            processedImgMsg.header = header
             self.publisherSeg.publish(processedImgMsg)
 
             processedEntropyImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedEntropyImage, "bgr8")
+            processedEntropyImgMsg.header = header
             self.publisherUnc.publish(processedEntropyImgMsg)
 
         except CvBridgeError as e:
