@@ -5,7 +5,7 @@ params:
     raw_image_topic: "/orb_slam3/keyframe_image"
     segmented_image_topic: "/camera/color/image_segment"
   model_params:
-    model_name: "PanopticFCN"
+    model_name: "SegFormer"
     model_path: "include/panoptic_fcn_r50_512_3x.pth"
     model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
     conf: 0.4

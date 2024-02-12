@@ -2,11 +2,11 @@
 
 import rospy
 from std_msgs.msg import Header
-from sensor_msgs.msg import Image
 from output import fastSamVisualizer
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
 from modelRunner import fastSamInit, fastSamSegmenter
+from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 
 
 class Segmenter:
@@ -22,31 +22,35 @@ class Segmenter:
         self.conf = params['model_params']['conf']
         modelName = params['model_params']['model_name']
         modelPath = params['model_params']['model_path']
+        self.counters = params['model_params']['contour']
+        self.boxPrompt = params['model_params']['box_prompt']
         self.imageSize = params['image_params']['image_size']
         rawImageTopic = params['ros_topics']['raw_image_topic']
-        segImageTopic = params['ros_topics']['segmented_image_topic']
-        self.pointPrompt = params['model_params']['point_prompt']
-        self.boxPrompt = params['model_params']['box_prompt']
         self.pointLabel = params['model_params']['point_label']
-        self.counters = params['model_params']['contour']
+        self.pointPrompt = params['model_params']['point_prompt']
+        segImageTopic = params['ros_topics']['segmented_image_topic']
 
         # Initial the segmentation module
         self.fsam = fastSamInit(modelName, modelPath)
 
-        # Subscribers
-        rospy.Subscriber(rawImageTopic, Image, self.segmentation)
+        # Subscribers (to vS-Graphs)
+        rospy.Subscriber(rawImageTopic, VSGraphDataMsg, self.segmentation)
 
-        # Publishers
+        # Publishers (for vS-Graphs)
         self.publisherSeg = rospy.Publisher(
-            segImageTopic, Image, queue_size=10)
+            segImageTopic, SegmenterDataMsg, queue_size=10)
 
         # ROS Bridge
         self.bridge = CvBridge()
 
     def segmentation(self, imageMessage):
         try:
+            # Parse the input data
+            keyFrameId = imageMessage.keyFrameId
+            keyFrameImage = imageMessage.keyFrameImage
+
             # Convert the ROS Image message to a CV2 image
-            cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
+            cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
             masks = fastSamSegmenter(
@@ -59,10 +63,16 @@ class Segmenter:
             header.stamp = rospy.Time.now()
 
             # Publish the processed image
-            processedImgMsg = self.bridge.cv2_to_imgmsg(
+            segmenterData = SegmenterDataMsg()
+            segmenterData.header = header
+            segmenterData.keyFrameId = keyFrameId
+            segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            processedImgMsg.header = header
-            self.publisherSeg.publish(processedImgMsg)
+            # [TODO] Add the segmentation uncertainty
+            # segmenterData.segmentedImageUncertainty =
+            # [TODO] Add the segmentation probability
+            # segmenterData.segmentedImageProbability =
+            self.publisherSeg.publish(segmenterData)
 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))

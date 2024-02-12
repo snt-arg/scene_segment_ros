@@ -5,10 +5,10 @@ import rospy
 from std_msgs.msg import Header
 from modelRunner import FCNSegmenter, FCNInit
 from cv_bridge import CvBridge, CvBridgeError
-from sensor_msgs.msg import Image, PointCloud2
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
 from output import FCNVisualizer, FCNEntropyVisualizer
+from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 
 
 class Segmenter:
@@ -32,24 +32,24 @@ class Segmenter:
         # Initial the segmentation module
         self.model, self.cfg = FCNInit(modelName, modelPath, modelConfig)
 
-        # Subscribers
-        rospy.Subscriber(rawImageTopic, Image, self.segmentation)
+        # Subscribers (to vS-Graphs)
+        rospy.Subscriber(rawImageTopic, VSGraphDataMsg, self.segmentation)
 
-        # Publishers
+        # Publishers (for vS-Graphs)
         self.publisherSeg = rospy.Publisher(
-            segImageTopic, Image, queue_size=10)
-        self.publisherUnc = rospy.Publisher(
-            segImageTopic + "/uncertainty", Image, queue_size=10)
-        self.publisherProb = rospy.Publisher(
-            segImageTopic + "/probabilities", PointCloud2, queue_size=10)
+            segImageTopic, SegmenterDataMsg, queue_size=10)
 
         # ROS Bridge
         self.bridge = CvBridge()
 
     def segmentation(self, imageMessage):
         try:
+            # Parse the input data
+            keyFrameId = imageMessage.keyFrameId
+            keyFrameImage = imageMessage.keyFrameImage
+
             # Convert the ROS Image message to a CV2 image
-            cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
+            cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
             predictions = FCNSegmenter(cvImage, self.model, self.classes)
@@ -66,20 +66,17 @@ class Segmenter:
             header.stamp = rospy.Time.now()
 
             # Publish the processed image
-            processedImgMsg = self.bridge.cv2_to_imgmsg(
+            segmenterData = SegmenterDataMsg()
+            segmenterData.header = header
+            segmenterData.keyFrameId = keyFrameId
+            segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            processedImgMsg.header = header
-            self.publisherSeg.publish(processedImgMsg)
-
-            processedUncImgMsg = self.bridge.cv2_to_imgmsg(
+            segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
                 segmentedUncImage, "bgr8")
-            processedUncImgMsg.header = header
-            self.publisherUnc.publish(processedUncImgMsg)
-
             labels = torch.argmax(predictions["sem_seg"], axis=0)
             unique_classes = torch.unique(labels)
-            pcdProbabilities.header = header
-            self.publisherProb.publish(pcdProbabilities)
+            segmenterData.segmentedImageProbability = pcdProbabilities
+            self.publisherSeg.publish(segmenterData)
 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))

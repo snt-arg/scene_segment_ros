@@ -9,6 +9,13 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
 )
 
+# Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  VSGraphDataMsg.msg
+  SegmenterDataMsg.msg
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs
