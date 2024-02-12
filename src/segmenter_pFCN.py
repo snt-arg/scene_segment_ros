@@ -2,6 +2,7 @@
 
 import torch
 import rospy
+import numpy as np
 from std_msgs.msg import Header
 from modelRunner import FCNSegmenter, FCNInit
 from cv_bridge import CvBridge, CvBridgeError
@@ -58,6 +59,11 @@ class Segmenter:
                 cvImage, predictions, self.cfg)
             prediction_probs = torch.permute(
                 predictions["sem_seg"], (1, 2, 0)).to("cpu").numpy()
+
+            # take only the probabilities for classes needed from params 
+            prediction_probs = np.take(prediction_probs, self.classes, -1)
+
+            # convert to ROS message
             pcdProbabilities = probabilities2ROSMsg(prediction_probs,
                                                     imageMessage.header.stamp, imageMessage.header.frame_id)
 
