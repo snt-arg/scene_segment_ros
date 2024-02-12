@@ -79,29 +79,23 @@ You can run the below launch files (accessible from `/launch` folder):
 
 ### Subscribed Topics
 
-| Topic                       | Description                                                                                     |
-| --------------------------- | ----------------------------------------------------------------------------------------------- |
-| `/orb_slam3/keyframe_image` | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) |
+| Topic                        | Description                                                                                           |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `/orb_slam3/keyframe_image`  | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) topic |
+| ---- `keyFrameId (UInt64)`   | the ID of the KeyFrame sent to be processed                                                           |
+| ---- `keyFrameImage (Image)` | the content of the KeyFrame image sent to be processed                                                |
 
 ### Published Topics
 
-| Topic                                       | Description                                         |
-| ------------------------------------------- | --------------------------------------------------- |
-| `/camera/color/image_segment`               | the output semantically segmented topic             |
-| `/camera/color/image_segment/probabilities` | the probabilities of semantically segmented objects |
-| `/camera/color/image_segment/uncertainty`   | the uncertainity of semantically segmented topic    |
-
-### Params
-
-| Param | Description |
-| ----- | ----------- |
-| `TBD` | -           |
+| Topic                                          | Description                             |
+| ---------------------------------------------- | --------------------------------------- |
+| `/camera/color/image_segment`                  | the output semantically segmented topic |
+| ---- `keyFrameId (UInt64)`                     | the ID of the processed KeyFrame        |
+| ---- `segmentedImage (Image)`                  | the segmented image                     |
+| ---- `segmentedImageUncertainty (Image)`       | the segmented image uncertainty values  |
+| ---- `segmentedImageProbability (PointCloud2)` | the segmented image probability values  |
 
 ## 📅 TODO
 
-- Excluding unnecessary segments
-- Removing logs
-- Providing segment information
-- Merging it with vS-Graphs for mapping
-- Testing with a robot
-  - Drone/Spot
+- Removing unnecessary logs
+- A new repository to contain all ROS messages (similar to moveit_msgs)

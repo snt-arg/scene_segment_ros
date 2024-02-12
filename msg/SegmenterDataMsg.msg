@@ -1,0 +1,5 @@
+Header header
+std_msgs/UInt64 keyFrameId
+sensor_msgs/Image segmentedImage
+sensor_msgs/Image segmentedImageUncertainty
+sensor_msgs/PointCloud2 segmentedImageProbability
