@@ -2,6 +2,7 @@
 
 import rospy
 from std_msgs.msg import Header
+from sensor_msgs.msg import Image
 from output import fastSamVisualizer
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
@@ -29,6 +30,7 @@ class Segmenter:
         self.pointLabel = params['model_params']['point_label']
         self.pointPrompt = params['model_params']['point_prompt']
         segImageTopic = params['ros_topics']['segmented_image_topic']
+        segImageVisTopic = params['ros_topics']['segmented_image_vis']
 
         # Initial the segmentation module
         self.fsam = fastSamInit(modelName, modelPath)
@@ -39,6 +41,8 @@ class Segmenter:
         # Publishers (for vS-Graphs)
         self.publisherSeg = rospy.Publisher(
             segImageTopic, SegmenterDataMsg, queue_size=10)
+        self.publisherSegVis = rospy.Publisher(
+            segImageVisTopic, Image, queue_size=10)
 
         # ROS Bridge
         self.bridge = CvBridge()
@@ -62,7 +66,7 @@ class Segmenter:
             header = Header()
             header.stamp = rospy.Time.now()
 
-            # Publish the processed image
+            # Publish the processed image to vS-Graphs
             segmenterData = SegmenterDataMsg()
             segmenterData.header = header
             segmenterData.keyFrameId = keyFrameId
@@ -73,6 +77,12 @@ class Segmenter:
             # [TODO] Add the segmentation probability
             # segmenterData.segmentedImageProbability =
             self.publisherSeg.publish(segmenterData)
+
+            # Publish the processed image for visualization
+            visualizationImgMsg.header = header
+            visualizationImgMsg = self.bridge.cv2_to_imgmsg(
+                segmentedImage, "bgr8")
+            self.publisherSegVis.publish(visualizationImgMsg)
 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))

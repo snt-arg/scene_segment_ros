@@ -4,6 +4,7 @@ params:
   ros_topics:
     raw_image_topic: "/orb_slam3/keyframe_image"
     segmented_image_topic: "/camera/color/image_segment"
+    segmented_image_vis: "/camera/color/image_segment_vis"
   model_params:
     model_name: "SegFormer"
     model_path: "include/panoptic_fcn_r50_512_3x.pth"
