@@ -74,6 +74,7 @@ class Segmenter:
             self.publisherSeg.publish(segmenterData)
 
             # Publish the processed image for visualization
+            visualizationImgMsg = Image()
             visualizationImgMsg.header = header
             visualizationImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
