@@ -47,21 +47,22 @@ The next step is to install the required frameworks:
 
 The system has different configurations for each of the segmentation libraries, accessible from `/config` folder. In the table below, you can see these configurations in details.
 
-| Main Category  | Parameter               | Default        | Description                          |
-| -------------- | ----------------------- | -------------- | ------------------------------------ |
-| `image_params` | `image_params`          | 640            | width of the input image             |
-| `ros_topics`   | `raw_image_topic`       | `/img`         | raw image topic                      |
-|                | `segmented_image_topic` | `/seg`         | segmented image topic                |
-| `model_params` | `model_name`            | -              | name of the model                    |
-|                | `model_path`            | -              | path of the model file               |
-|                | `model_config`          | -              | path of the model's specific configs |
-|                | `point_prompt`          | [[0, 0]]       | a point for segmentation             |
-|                | `box_prompt`            | [[0, 0, 0, 0]] | boxes for segmentation               |
-|                | `text_prompt`           | -              | text prompt (e.g., "a dog")          |
-|                | `point_label`           | [0]            | 0: background, 1: foreground         |
-|                | `iou`                   | 0.9            | annots filtering threshold           |
-|                | `conf`                  | 0.4            | object confidence threshold          |
-|                | `contour`               | False          | draw contours                        |
+| Main Category  | Parameter               | Default        | Description                           |
+| -------------- | ----------------------- | -------------- | ------------------------------------- |
+| `image_params` | `image_params`          | 640            | width of the input image              |
+| `ros_topics`   | `raw_image_topic`       | `/img`         | raw image topic                       |
+|                | `segmented_image_topic` | -              | segmented image topic (custom Msg)    |
+|                | `segmented_image_vis`   | -              | segmented image topic (visualization) |
+| `model_params` | `model_name`            | -              | name of the model                     |
+|                | `model_path`            | -              | path of the model file                |
+|                | `model_config`          | -              | path of the model's specific configs  |
+|                | `point_prompt`          | [[0, 0]]       | a point for segmentation              |
+|                | `box_prompt`            | [[0, 0, 0, 0]] | boxes for segmentation                |
+|                | `text_prompt`           | -              | text prompt (e.g., "a dog")           |
+|                | `point_label`           | [0]            | 0: background, 1: foreground          |
+|                | `iou`                   | 0.9            | annots filtering threshold            |
+|                | `conf`                  | 0.4            | object confidence threshold           |
+|                | `contour`               | False          | draw contours                         |
 
 ### Results Filtration
 
