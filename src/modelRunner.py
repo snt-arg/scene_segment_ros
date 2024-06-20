@@ -51,10 +51,9 @@ def fastSamSegmenter(image, model, imageSize=640, conf=0.4, iou=0.9):
 
     Returns
     -------
-    masks: dict
-        The masks created by the model containing segments
+    predictions: dict
+        The predictions created by the model containing segments
     """
-    print()
     # Generating mask (everything result)
     maskGenerator = model(
         image,
@@ -65,8 +64,8 @@ def fastSamSegmenter(image, model, imageSize=640, conf=0.4, iou=0.9):
         iou=iou
     )
     # Process
-    masks = FastSAMPrompt(image, maskGenerator, device=DEVICE)
-    return masks
+    predictions = FastSAMPrompt(image, maskGenerator, device=DEVICE)
+    return predictions
 
 
 def FCNInit(name: str, modelPath: str, configPath: str):
@@ -103,7 +102,7 @@ def FCNInit(name: str, modelPath: str, configPath: str):
     return model, cfg
 
 
-def FCNSegmenter(image, model, classes):
+def pFCNSegmenter(image, model, classes):
     """
     Segments the given image using Panoptic FCN
 

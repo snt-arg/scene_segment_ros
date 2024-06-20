@@ -54,7 +54,7 @@ def fastSamVisualizer(masks, pointPrompt, boxPrompts, pointLabel, counters):
     return result
 
 
-def FCNVisualizer(image, predictions, cfg):
+def pFCNVisualizer(image, predictions, cfg):
     """
     Shows the output of panoptic or instance segmentation
 
@@ -82,39 +82,36 @@ def FCNVisualizer(image, predictions, cfg):
     return result.get_image()[:, :, ::-1]
 
 
-def FCNEntropyVisualizer(image, predictions, cfg):
+def pFCNEntropyVisualizer(predictions):
     """
     Shows the output of panoptic or instance segmentation
     with the entropies to show the confidence of the model
 
     Parameters
     -------
-    image: Mat
-        The input image
     predictions: dict
         Dict of segmentation results
-    cfg: CfgNode
-        The configuration object
 
     Returns
     -------
     result: Mat
         The segmented visualized image
     """
-    # Init
-    semantic_segmentation = predictions["sem_seg"]
+    # Convert predictions to a tensor if they are not already
+    if not isinstance(predictions, torch.Tensor):
+        predictions = torch.tensor(predictions)
     # Compute the entropy
-    entropy = -torch.sum(semantic_segmentation *
-                         torch.log(semantic_segmentation+1e-10), axis=0) * 255
+    entropy = -torch.sum(predictions *
+                         torch.log(predictions+1e-10), axis=0) * 255
     entropy = entropy.to("cpu").numpy().astype(np.uint8)
     # Generate color map from probabilities (black 0 - white 1)
-    color_map = cv2.applyColorMap(
+    colorMap = cv2.applyColorMap(
         (entropy).astype(np.uint8), cv2.COLORMAP_BONE)
+    # Return
+    return colorMap
 
-    return color_map
 
-
-def SegFormerVisualizer(image, predictions):
+def segFormerVisualizer(image, predictions):
     """
     Shows the output of panoptic or instance segmentation
 
@@ -136,13 +133,12 @@ def SegFormerVisualizer(image, predictions):
     predictions = predictions.to("cpu")
     # Generate color map from predictions (labels)
     predictions_hot = predictions.argmax(dim=0).numpy()
-    color_map = label2rgb(predictions_hot, image, ADE20K_COLOR_MAP)
-
+    colorMap = label2rgb(predictions_hot, image, ADE20K_COLOR_MAP)
     # Return
-    return color_map
+    return colorMap
 
 
-def SegFormerEntropyVisualizer(image, predictions):
+def segFormerEntropyVisualizer(predictions):
     """
     Shows the output of panoptic or instance segmentation
 
@@ -163,7 +159,7 @@ def SegFormerEntropyVisualizer(image, predictions):
                          torch.log(predictions+1e-10), axis=0) * 255
     entropy = entropy.to("cpu").numpy().astype(np.uint8)
     # Generate color map from probabilities (black 0 - white 1)
-    color_map = cv2.applyColorMap(
+    colorMap = cv2.applyColorMap(
         (entropy).astype(np.uint8), cv2.COLORMAP_BONE)
-
-    return color_map
+    # Return
+    return colorMap

@@ -57,10 +57,10 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
-            masks = fastSamSegmenter(
+            predictions = fastSamSegmenter(
                 cvImage, self.fsam, self.imageSize, self.conf, self.iou)
             segmentedImage = fastSamVisualizer(
-                masks, self.pointPrompt, self.boxPrompt, self.pointLabel, self.counters)
+                predictions, self.pointPrompt, self.boxPrompt, self.pointLabel, self.counters)
 
             # Create a header with the current time
             header = Header()
@@ -72,10 +72,6 @@ class Segmenter:
             segmenterData.keyFrameId = keyFrameId
             segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            # [TODO] Add the segmentation uncertainty
-            # segmenterData.segmentedImageUncertainty =
-            # [TODO] Add the segmentation probability
-            # segmenterData.segmentedImageProbability =
             self.publisherSeg.publish(segmenterData)
 
             # Publish the processed image for visualization

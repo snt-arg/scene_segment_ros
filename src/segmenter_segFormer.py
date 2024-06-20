@@ -7,7 +7,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
 from modelRunner import SegFormerSegmenter, SegFormerInit
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
-from output import SegFormerVisualizer, SegFormerEntropyVisualizer
+from output import segFormerVisualizer, segFormerEntropyVisualizer
 
 
 class Segmenter:
@@ -53,9 +53,8 @@ class Segmenter:
             # Processing
             predictions = SegFormerSegmenter(
                 cvImage, self.model, self.image_processor)
-            segmentedImage = SegFormerVisualizer(cvImage, predictions)
-            segmentedEntropyImage = SegFormerEntropyVisualizer(
-                cvImage, predictions)
+            segmentedImage = segFormerVisualizer(cvImage, predictions)
+            segmentedUncImage = segFormerEntropyVisualizer(predictions)
 
             # Create a header with the current time
             header = Header()
@@ -67,10 +66,8 @@ class Segmenter:
             segmenterData.keyFrameId = keyFrameId
             segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            # [TODO] Add the segmentation uncertainty
-            # segmenterData.segmentedImageUncertainty =
-            # [TODO] Add the segmentation probability
-            # segmenterData.segmentedImageProbability =
+            segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
+                segmentedUncImage, "bgr8")
             self.publisherSeg.publish(segmenterData)
 
             # Publish the processed image for visualization

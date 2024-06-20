@@ -5,11 +5,11 @@ import rospy
 import numpy as np
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image
-from modelRunner import FCNSegmenter, FCNInit
+from modelRunner import pFCNSegmenter, FCNInit
 from cv_bridge import CvBridge, CvBridgeError
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
-from output import FCNVisualizer, FCNEntropyVisualizer
+from output import pFCNVisualizer, pFCNEntropyVisualizer
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 
 
@@ -57,10 +57,9 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
-            predictions = FCNSegmenter(cvImage, self.model, self.classes)
-            segmentedImage = FCNVisualizer(cvImage, predictions, self.cfg)
-            segmentedUncImage = FCNEntropyVisualizer(
-                cvImage, predictions, self.cfg)
+            predictions = pFCNSegmenter(cvImage, self.model, self.classes)
+            segmentedImage = pFCNVisualizer(cvImage, predictions, self.cfg)
+            segmentedUncImage = pFCNEntropyVisualizer(predictions["sem_seg"])
             predictionProbs = torch.permute(
                 predictions["sem_seg"], (1, 2, 0)).to("cpu").numpy()
 
