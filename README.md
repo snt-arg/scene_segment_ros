@@ -72,8 +72,10 @@ In order get only the classes that you want (such as `wall` or `floor`), you nee
 
 You can run the below launch files (accessible from `/launch` folder):
 
+- **YOSO**: `roslaunch segmenter_ros segmenter_yoso.launch`
 - **FastSAM**: `roslaunch segmenter_ros segmenter_fastSAM.launch`
 - **PanopticFCN**: `roslaunch segmenter_ros segmenter_pFCN.launch`
+- **MaskDino**: `roslaunch segmenter_ros segmenter_maskDino.launch`
 - **SegFormer**: `roslaunch segmenter_ros segmenter_segFormer.launch`
 
 ## 🤖 ROS Topics, Params and Services
