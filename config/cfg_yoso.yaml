@@ -6,11 +6,9 @@ params:
     segmented_image_topic: "/camera/color/image_segment"
     segmented_image_vis: "/camera/color/image_segment_vis"
   model_params:
-    model_name: "FastSAM"
-    model_path: "include/FastSAM-s.pt"
-    point_prompt: [[0, 0]]
-    box_prompt: [[0, 0, 0, 0]]
-    point_label: [0]
-    iou: 0.9
+    model_name: "YOSO"
+    model_path: "include/panoptic_fcn_r50_512_3x.pth"
+    model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
     conf: 0.4
-    contour: False
+  output:
+    classes: [43, 52] # 43: Floor, 52: Wall

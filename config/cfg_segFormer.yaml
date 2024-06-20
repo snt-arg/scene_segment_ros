@@ -7,8 +7,4 @@ params:
     segmented_image_vis: "/camera/color/image_segment_vis"
   model_params:
     model_name: "SegFormer"
-    model_path: "include/panoptic_fcn_r50_512_3x.pth"
-    model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
     conf: 0.4
-  output:
-    classes: [43, 52] # 43: Floor, 52: Wall
