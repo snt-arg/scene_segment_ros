@@ -163,3 +163,24 @@ def segFormerEntropyVisualizer(predictions):
         (entropy).astype(np.uint8), cv2.COLORMAP_BONE)
     # Return
     return colorMap
+
+
+def maskDinoVisualizer(image, model, predictions):
+    """
+    Shows the output of panoptic or instance segmentation
+
+    Parameters
+    -------
+    image: Mat
+        The original image that was to be segmented
+    model: VisualizationDemo
+        The demo model for MaskDino
+    predictions: dict
+        Dict of segmentation results
+    """
+    # Generate color map from predictions (labels)
+    ranModel = model.run_on_image(image, predictions)
+    # Extract the image
+    colorMap = ranModel.get_image()[:, :, ::-1]
+    # Return
+    return colorMap
