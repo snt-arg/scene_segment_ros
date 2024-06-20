@@ -7,8 +7,8 @@ params:
     segmented_image_vis: "/camera/color/image_segment_vis"
   model_params:
     model_name: "maskDino"
-    model_path: "include/panoptic_fcn_r50_512_3x.pth"
-    model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
-    conf: 0.4
+    model_path: "include/maskdino_r50_50ep_300q_hid2048_3sd1_panoptic_pq53.0.pth"
+    model_config: "src/maskdino/config/maskdino_R50_bs16_50ep_3s_dowsample1_2048.yaml"
+    conf: 0.5
   output:
     classes: [43, 52] # 43: Floor, 52: Wall

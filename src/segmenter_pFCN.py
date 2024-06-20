@@ -5,8 +5,8 @@ import rospy
 import numpy as np
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image
-from modelRunner import pFCNSegmenter, FCNInit
 from cv_bridge import CvBridge, CvBridgeError
+from modelRunner import pFCNSegmenter, pFCNInit
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
 from output import pFCNVisualizer, pFCNEntropyVisualizer
@@ -33,7 +33,7 @@ class Segmenter:
         segImageVisTopic = params['ros_topics']['segmented_image_vis']
 
         # Initial the segmentation module
-        self.model, self.cfg = FCNInit(modelName, modelPath, modelConfig)
+        self.model, self.cfg = pFCNInit(modelName, modelPath, modelConfig)
 
         # Subscribers (to vS-Graphs)
         rospy.Subscriber(rawImageTopic, VSGraphDataMsg, self.segmentation)
