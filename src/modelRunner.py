@@ -1,11 +1,8 @@
 import torch
 import multiprocessing as mp
 from detectron2.config import get_cfg
-from fastsam import FastSAM, FastSAMPrompt
 from detectron2.engine import DefaultPredictor
-from panopticfcn import add_panopticfcn_config
 from detectron2.projects.deeplab import add_deeplab_config
-from maskdino import add_maskdino_config, VisualizationDemo
 from utils.helpers import getRootAbsolutePath, getFilteredSegments
 from transformers import AutoImageProcessor, SegformerForSemanticSegmentation
 
@@ -28,6 +25,9 @@ def fastSamInit(name: str, path: str):
     model: str
         The initialized model
     """
+    # Import
+    from fastsam import FastSAM
+    # Initialization
     print(f'Initializing "{name}" model ...')
     # Initialization
     model = FastSAM(path)
@@ -57,6 +57,8 @@ def fastSamSegmenter(image, model, imageSize=640, conf=0.4, iou=0.9):
     predictions: dict
         The predictions created by the model containing segments
     """
+    # Import
+    from fastsam import FastSAMPrompt
     # Generating mask (everything result)
     maskGenerator = model(
         image,
@@ -89,6 +91,9 @@ def pFCNInit(name: str, modelPath: str, configPath: str):
     model: str
         The initialized model
     """
+    # Import
+    from panopticfcn import add_panopticfcn_config
+    # Initialization
     print(f'Initializing "{name}" model ...')
     # Convert to absolute path
     configPath = getRootAbsolutePath(configPath)
@@ -208,8 +213,10 @@ def maskDinoInit(name: str, modelPath: str, configPath: str, confidence=0.5):
     model: str
         The initialized model
     """
-    print(f'Initializing "{name}" model ...')
+    # Import
+    from maskdino import add_maskdino_config, VisualizationDemo
     # Initialization
+    print(f'Initializing "{name}" model ...')
     mp.set_start_method("spawn", force=True)
     # Configs
     cfg = get_cfg()
