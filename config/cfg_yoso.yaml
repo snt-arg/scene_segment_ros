@@ -7,8 +7,9 @@ params:
     segmented_image_vis: "/camera/color/image_segment_vis"
   model_params:
     model_name: "YOSO"
-    model_path: "include/panoptic_fcn_r50_512_3x.pth"
-    model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
-    conf: 0.4
+    model_path: "include/yoso_res50_coco.pth"
+    model_config: "src/yoso/config/coco/YOSO-R50.yaml"
+    conf: 0.5
+    overlap: 0.98
   output:
     classes: [43, 52] # 43: Floor, 52: Wall

@@ -2,9 +2,9 @@ import cv2
 import torch
 import numpy as np
 from detectron2.data import MetadataCatalog
-from detectron2.utils.visualizer import Visualizer
 from fastsam.utils import convert_box_xywh_to_xyxy
 from utils.semantic_utils import label2rgb, ADE20K_COLOR_MAP
+from detectron2.utils.visualizer import Visualizer, ColorMode
 
 
 def fastSamVisualizer(masks, pointPrompt, boxPrompts, pointLabel, counters):
@@ -97,9 +97,6 @@ def pFCNEntropyVisualizer(predictions):
     result: Mat
         The segmented visualized image
     """
-    # Convert predictions to a tensor if they are not already
-    if not isinstance(predictions, torch.Tensor):
-        predictions = torch.tensor(predictions)
     # Compute the entropy
     entropy = -torch.sum(predictions *
                          torch.log(predictions+1e-10), axis=0) * 255
@@ -180,6 +177,32 @@ def maskDinoVisualizer(image, model, predictions):
     """
     # Generate color map from predictions (labels)
     ranModel = model.run_on_image(image, predictions)
+    # Extract the image
+    colorMap = ranModel.get_image()[:, :, ::-1]
+    # Return
+    return colorMap
+
+
+def yosoVisualizer(image, predictions, cfg):
+    """
+    Shows the output of panoptic or instance segmentation
+
+    Parameters
+    -------
+    image: Mat
+        The original image that was to be segmented
+    model: VisualizationDemo
+        The demo model for MaskDino
+    predictions: dict
+        Dict of segmentation results
+    """
+    # Generate color map from predictions (labels)
+    metadata = MetadataCatalog.get(
+        cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
+    visualizer = Visualizer(image, metadata, instance_mode=ColorMode.IMAGE)
+    _, panopticSeg, segments_info = predictions["panoptic_seg"]
+    ranModel = visualizer.draw_panoptic_seg_predictions(
+        panopticSeg.to(torch.device("cpu")), segments_info)
     # Extract the image
     colorMap = ranModel.get_image()[:, :, ::-1]
     # Return
