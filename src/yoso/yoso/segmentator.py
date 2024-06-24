@@ -180,6 +180,7 @@ class YOSO(nn.Module):
         return semseg
 
     def panoptic_inference(self, mask_cls, mask_pred):
+        print(mask_cls.shape)
         scores, labels = F.softmax(mask_cls, dim=-1).max(-1)
         mask_pred = mask_pred.sigmoid()
 
@@ -192,7 +193,7 @@ class YOSO(nn.Module):
         cur_mask_cls = cur_mask_cls[:, :-1]
 
         cur_prob_masks = cur_scores.view(-1, 1, 1) * cur_masks
-
+        print(cur_prob_masks.shape)
         h, w = cur_masks.shape[-2:]
         panoptic_seg = torch.zeros(
             (h, w), dtype=torch.int32, device=cur_masks.device)
@@ -238,8 +239,7 @@ class YOSO(nn.Module):
                             "category_id": int(pred_class),
                         }
                     )
-
-            return mask_pred, panoptic_seg, segments_info
+            return panoptic_seg, segments_info
 
     def instance_inference(self, mask_cls, mask_pred):
         # mask_pred is already processed to have the same shape as original input

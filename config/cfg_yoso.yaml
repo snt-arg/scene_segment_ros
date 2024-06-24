@@ -12,4 +12,4 @@ params:
     conf: 0.5
     overlap: 0.98
   output:
-    classes: [43, 52] # 43: Floor, 52: Wall
+    classes: [43, 52] # 1: floor-other-merged, 1: wall-other-merged, 2: door-stuff
