@@ -59,15 +59,11 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
-            predictions = yosoSegmenter(cvImage, self.model, self.classes)
+            predictions, seg_dict, predictionProbs = yosoSegmenter(
+                cvImage, self.model, self.classes)
             segmentedImage = yosoVisualizer(cvImage, predictions, self.cfg)
-            segmentedUncImage = pFCNEntropyVisualizer(
-                predictions["panoptic_seg"][0])
-            predictionProbs = torch.permute(
-                predictions["panoptic_seg"][0], (2, 1, 0)).to("cpu").numpy()
-
-            # Take only the probabilities for classes needed from params
-            predictionProbs = np.take(predictionProbs, self.classes, -1)
+            # segmentedUncImage = pFCNEntropyVisualizer(
+            #     predictionProbs)
 
             # Convert to ROS message
             pcdProbabilities = probabilities2ROSMsg(predictionProbs,
@@ -83,8 +79,8 @@ class Segmenter:
             segmenterData.keyFrameId = keyFrameId
             segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
-                segmentedUncImage, "bgr8")
+            # segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
+            #     segmentedUncImage, "bgr8")
             # labels = torch.argmax(predictions["panoptic_seg"], axis=0)
             # unique_classes = torch.unique(labels)
             self.publisherSeg.publish(segmenterData)

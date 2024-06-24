@@ -200,7 +200,7 @@ def yosoVisualizer(image, predictions, cfg):
     metadata = MetadataCatalog.get(
         cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
     visualizer = Visualizer(image, metadata, instance_mode=ColorMode.IMAGE)
-    _, panopticSeg, segments_info = predictions["panoptic_seg"]
+    panopticSeg, segments_info = predictions["panoptic_seg"]
     ranModel = visualizer.draw_panoptic_seg_predictions(
         panopticSeg.to(torch.device("cpu")), segments_info)
     # Extract the image
