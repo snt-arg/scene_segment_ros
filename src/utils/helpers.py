@@ -67,7 +67,7 @@ def getFilteredSegments(predictions: dict, classes: list):
     filteredSegments: list
         The list of filtered segments
     filteredProbs: np.ndarray
-        The matrix of per-pixel probabilities of the shape (..., C) 
+        The matrix of per-pixel probabilities of the shape (H, W, C) 
     """
     # Initialize
     newSegmentInfo = []
