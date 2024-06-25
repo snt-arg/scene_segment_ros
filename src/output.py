@@ -82,20 +82,20 @@ def pFCNVisualizer(image, predictions, cfg):
     return result.get_image()[:, :, ::-1]
 
 
-def pFCNEntropyVisualizer(predictions):
+def entropyVisualizer(predictions):
     """
     Shows the output of panoptic or instance segmentation
     with the entropies to show the confidence of the model
 
     Parameters
     -------
-    predictions: dict
-        Dict of segmentation results
+    predictions: torch.Tensor
+        Tensor with class probabilities of shape (C, H, W)
 
     Returns
     -------
     result: Mat
-        The segmented visualized image
+        The uncertainty image
     """
     # Compute the entropy
     entropy = -torch.sum(predictions *

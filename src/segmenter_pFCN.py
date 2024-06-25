@@ -8,7 +8,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from modelRunner import pFCNSegmenter, pFCNInit
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
-from output import pFCNVisualizer, pFCNEntropyVisualizer
+from output import pFCNVisualizer, entropyVisualizer
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 
 
@@ -56,14 +56,15 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
-            predictions, predictionProbs = pFCNSegmenter(
+            filteredSegments, filteredProbs = pFCNSegmenter(
                 cvImage, self.model, self.classes)
-            segmentedImage = pFCNVisualizer(cvImage, predictions, self.cfg)
-            segmentedUncImage = pFCNEntropyVisualizer(predictions["sem_seg"])
+            segmentedImage = pFCNVisualizer(cvImage, filteredSegments, self.cfg)
+            segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
 
             # Convert to ROS message
-            pcdProbabilities = probabilities2ROSMsg(predictionProbs,
-                                                    imageMessage.header.stamp, imageMessage.header.frame_id)
+            pcdProbabilities = probabilities2ROSMsg(filteredProbs,
+                                                    imageMessage.header.stamp,
+                                                    imageMessage.header.frame_id)
 
             # Create a header with the current time
             header = Header()
@@ -77,8 +78,6 @@ class Segmenter:
                 segmentedImage, "bgr8")
             segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
                 segmentedUncImage, "bgr8")
-            labels = torch.argmax(predictions["sem_seg"], axis=0)
-            unique_classes = torch.unique(labels)
             segmenterData.segmentedImageProbability = pcdProbabilities
             self.publisherSeg.publish(segmenterData)
 

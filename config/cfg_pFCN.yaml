@@ -7,9 +7,9 @@ params:
     segmented_image_vis: "/camera/color/image_segment_vis"
   model_params:
     model_name: "PanopticFCN"
-    # model_path: "include/panoptic_fcn_r50_512_3x.pth"
+    # model_path: "include/panoptic_fcn_star_r50_3x.pth"
     model_path: "include/panoptic_fcn_star_r50_3x.pth"
-    # model_config: "src/panopticfcn/config/PanopticFCN-R50-512-3x-FAST.yaml"
+    # model_config: "src/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
     model_config: "src/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
     conf: 0.4
   output:

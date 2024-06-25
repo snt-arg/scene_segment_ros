@@ -31,7 +31,6 @@ def probabilities2ROSMsg(probabilities: np.ndarray, timestamp: rospy.Time, frame
     point_cloud_msg.point_step = num_classes * 4 # 4 bytes per float
     point_cloud_msg.row_step = point_cloud_msg.point_step * width * height
     point_cloud_msg.is_dense = True
-    prob_reshaped = probabilities.reshape((height * width, num_classes), order='C')
     points_data = probabilities.astype(np.float32).tobytes()
     point_cloud_msg.data = points_data
 
