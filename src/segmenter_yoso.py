@@ -9,7 +9,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from modelRunner import yosoInit, yosoSegmenter
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
-from output import yosoVisualizer, pFCNEntropyVisualizer
+from output import yosoVisualizer, entropyVisualizer
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 
 
@@ -59,15 +59,16 @@ class Segmenter:
             cvImage = self.bridge.imgmsg_to_cv2(keyFrameImage, "bgr8")
 
             # Processing
-            predictions, seg_dict, predictionProbs = yosoSegmenter(
+            filteredSegments, filteredProbs = yosoSegmenter(
                 cvImage, self.model, self.classes)
-            segmentedImage = yosoVisualizer(cvImage, predictions, self.cfg)
-            # segmentedUncImage = pFCNEntropyVisualizer(
-            #     predictionProbs)
+            segmentedImage = yosoVisualizer(cvImage, filteredSegments, self.cfg)
+            segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
 
             # Convert to ROS message
-            pcdProbabilities = probabilities2ROSMsg(predictionProbs,
-                                                    imageMessage.header.stamp, imageMessage.header.frame_id)
+            pcdProbabilities = probabilities2ROSMsg(filteredProbs,
+                                                    imageMessage.header.stamp,
+                                                    imageMessage.header.frame_id)
+
 
             # Create a header with the current time
             header = Header()
@@ -79,10 +80,9 @@ class Segmenter:
             segmenterData.keyFrameId = keyFrameId
             segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            # segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
-            #     segmentedUncImage, "bgr8")
-            # labels = torch.argmax(predictions["panoptic_seg"], axis=0)
-            # unique_classes = torch.unique(labels)
+            segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
+                segmentedUncImage, "bgr8")
+            segmenterData.segmentedImageProbability = pcdProbabilities
             self.publisherSeg.publish(segmenterData)
 
             # Publish the processed image for visualization
@@ -90,7 +90,6 @@ class Segmenter:
             visualizationImgMsg.header = header
             visualizationImgMsg = self.bridge.cv2_to_imgmsg(
                 segmentedImage, "bgr8")
-            segmenterData.segmentedImageProbability = pcdProbabilities
             self.publisherSegVis.publish(visualizationImgMsg)
 
         except CvBridgeError as e:

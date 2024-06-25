@@ -8,8 +8,9 @@ params:
   model_params:
     model_name: "YOSO"
     model_path: "include/yoso_res50_coco.pth"
+    # make sure SEMANTIC_ON is True in the model config
     model_config: "src/yoso/config/coco/YOSO-R50.yaml"
     conf: 0.5
     overlap: 0.98
   output:
-    classes: [43, 52] # 1: floor-other-merged, 1: wall-other-merged, 2: door-stuff
+    classes: [122, 131] # 122: floor-other-merged, 131: wall-other-merged, 2: door-stuff

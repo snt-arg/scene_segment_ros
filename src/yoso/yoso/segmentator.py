@@ -180,7 +180,6 @@ class YOSO(nn.Module):
         return semseg
 
     def panoptic_inference(self, mask_cls, mask_pred):
-        print(mask_cls.shape)
         scores, labels = F.softmax(mask_cls, dim=-1).max(-1)
         mask_pred = mask_pred.sigmoid()
 
@@ -193,7 +192,6 @@ class YOSO(nn.Module):
         cur_mask_cls = cur_mask_cls[:, :-1]
 
         cur_prob_masks = cur_scores.view(-1, 1, 1) * cur_masks
-        print(cur_prob_masks.shape)
         h, w = cur_masks.shape[-2:]
         panoptic_seg = torch.zeros(
             (h, w), dtype=torch.int32, device=cur_masks.device)
@@ -202,7 +200,7 @@ class YOSO(nn.Module):
         current_segment_id = 0
 
         if cur_masks.shape[0] == 0:
-            # We didn't detect any mask :(
+            print("No mask detected!!")
             return panoptic_seg, segments_info
         else:
             # take argmax
