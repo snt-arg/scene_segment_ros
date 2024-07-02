@@ -177,6 +177,8 @@ class YOSO(nn.Module):
         mask_cls = F.softmax(mask_cls, dim=-1)[..., :-1]
         mask_pred = mask_pred.sigmoid()
         semseg = torch.einsum("qc,qhw->chw", mask_cls, mask_pred)
+        semseg = semseg/0.3  # temperature scaling
+        semseg = F.softmax(semseg, dim=0) # probabilities
         return semseg
 
     def panoptic_inference(self, mask_cls, mask_pred):
