@@ -3,7 +3,9 @@ import gc
 import torch
 import torchvision
 import numpy as np
+from time import time
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def monitorParams():
     """
@@ -81,13 +83,12 @@ def getFilteredSegments(predictions: dict, classes: list):
         # Filter the segments
         if segment["category_id"] in classes:
             newSegmentInfo.append(segment)
-    
+
     # Make a tuple
     filteredSegments["panoptic_seg"] = (segmentValues, newSegmentInfo)
     
     # Get probabilities and filter them
     filteredProbs = torch.permute(
-        filteredSegments["sem_seg"], (1, 2, 0)).to("cpu").numpy()
-    filteredProbs = np.take(filteredProbs, classes, -1)
+        filteredSegments["sem_seg"], (1, 2, 0)).index_select(-1, torch.tensor(classes).to(device)).cpu().numpy()
     
     return filteredSegments, filteredProbs
