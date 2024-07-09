@@ -31,6 +31,8 @@ class Segmenter:
         segImageTopic = params['ros_topics']['segmented_image_topic']
         segImageVisTopic = params['ros_topics']['segmented_image_vis']
 
+        self.visualize = rospy.get_param('~visualize')
+
         # Initial the segmentation module
         self.model, self.cfg = pFCNInit(modelName, modelPath, modelConfig)
 
@@ -58,7 +60,8 @@ class Segmenter:
             # Processing
             filteredSegments, filteredProbs = pFCNSegmenter(
                 cvImage, self.model, self.classes)
-            segmentedImage = pFCNVisualizer(cvImage, filteredSegments, self.cfg)
+            if self.visualize:
+                segmentedImage = pFCNVisualizer(cvImage, filteredSegments, self.cfg)
             segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
 
             # Convert to ROS message
@@ -74,19 +77,20 @@ class Segmenter:
             segmenterData = SegmenterDataMsg()
             segmenterData.header = header
             segmenterData.keyFrameId = keyFrameId
-            segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
-                segmentedImage, "bgr8")
+            if self.visualize:
+                segmenterData.segmentedImage = self.bridge.cv2_to_imgmsg(
+                    segmentedImage, "bgr8")
             segmenterData.segmentedImageUncertainty = self.bridge.cv2_to_imgmsg(
                 segmentedUncImage, "bgr8")
             segmenterData.segmentedImageProbability = pcdProbabilities
             self.publisherSeg.publish(segmenterData)
 
-            # Publish the processed image for visualization
-            visualizationImgMsg = Image()
-            visualizationImgMsg.header = header
-            visualizationImgMsg = self.bridge.cv2_to_imgmsg(
-                segmentedImage, "bgr8")
-            self.publisherSegVis.publish(visualizationImgMsg)
+            if self.visualize:
+                # Publish the processed image for visualization
+                visualizationImgMsg = Image()
+                visualizationImgMsg.header = header
+                visualizationImgMsg = segmenterData.segmentedImage
+                self.publisherSegVis.publish(visualizationImgMsg)
 
         except CvBridgeError as e:
             rospy.logerr("CvBridge Error: {0}".format(e))

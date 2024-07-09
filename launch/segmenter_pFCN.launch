@@ -1,6 +1,7 @@
 <launch>
     <!-- Arguments -->
     <arg name="node_name" default="segmenter_ros" />
+    <arg name="visualize" default="true" />
 
     <!-- Configurations -->
     <arg name="configs" default="$(find segmenter_ros)/config/cfg_pFCN.yaml" />
@@ -8,5 +9,6 @@
     <!-- Nodes -->
     <node name="$(arg node_name)" pkg="segmenter_ros" type="segmenter_pFCN.py" output="screen" >
         <rosparam command="load" file="$(arg configs)" />
+        <param name="visualize" value="$(arg visualize)" />
     </node>
 </launch>
