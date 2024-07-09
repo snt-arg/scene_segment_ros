@@ -13,4 +13,4 @@ params:
     conf: 0.5
     overlap: 0.98
   output:
-    classes: [122, 131] # 122: floor-other-merged, 131: wall-other-merged, 2: door-stuff
+    classes: [122, 131] # 122: floor-other-merged, 131: wall-other-merged, 86: door-stuff
