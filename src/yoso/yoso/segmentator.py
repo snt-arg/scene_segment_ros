@@ -143,9 +143,10 @@ class YOSO(nn.Module):
 
                 # panoptic segmentation inference
                 if self.panoptic_on:
-                    panoptic_r = retry_if_cuda_oom(self.panoptic_inference)(
+                    panoptic_seg, segments_info, sem_seg = retry_if_cuda_oom(self.panoptic_inference)(
                         mask_cls_result, mask_pred_result)
-                    processed_results[-1]["panoptic_seg"] = panoptic_r
+                    processed_results[-1]["panoptic_seg"] = (panoptic_seg, segments_info)
+                    processed_results[-1]["sem_seg"] = sem_seg
 
                 # instance segmentation inference
                 if self.instance_on:
@@ -182,8 +183,10 @@ class YOSO(nn.Module):
         return semseg
 
     def panoptic_inference(self, mask_cls, mask_pred):
-        scores, labels = F.softmax(mask_cls, dim=-1).max(-1)
+        mask_cls = F.softmax(mask_cls, dim=-1)
+        scores, labels = mask_cls.max(-1)
         mask_pred = mask_pred.sigmoid()
+        mask_cls = mask_cls[..., :-1]
 
         keep = labels.ne(self.num_classes) & (
             scores > self.object_mask_threshold)
@@ -193,21 +196,24 @@ class YOSO(nn.Module):
         cur_mask_cls = mask_cls[keep]
         cur_mask_cls = cur_mask_cls[:, :-1]
 
+        region_idx = (keep == 1).nonzero(as_tuple=False).squeeze(1).tolist()
         cur_prob_masks = cur_scores.view(-1, 1, 1) * cur_masks
         h, w = cur_masks.shape[-2:]
         panoptic_seg = torch.zeros(
             (h, w), dtype=torch.int32, device=cur_masks.device)
         segments_info = []
+        sem_seg = torch.zeros(
+            (self.num_classes, h, w), dtype=torch.float32, device=cur_masks.device)
 
         current_segment_id = 0
 
         if cur_masks.shape[0] == 0:
             print("No mask detected!!")
-            return panoptic_seg, segments_info
+            return panoptic_seg, segments_info, sem_seg
         else:
-            # take argmax
             cur_mask_ids = cur_prob_masks.argmax(0)
             stuff_memory_list = {}
+            keep_idx = []
             for k in range(cur_classes.shape[0]):
                 pred_class = cur_classes[k].item()
                 isthing = pred_class in self.metadata.thing_dataset_id_to_contiguous_id.values()
@@ -218,6 +224,7 @@ class YOSO(nn.Module):
                 if mask_area > 0 and original_area > 0 and mask.sum().item() > 0:
                     if mask_area / original_area < self.overlap_threshold:
                         continue
+                    keep_idx.append(region_idx[k])
 
                     # merge stuff regions
                     if not isthing:
@@ -239,7 +246,18 @@ class YOSO(nn.Module):
                             "category_id": int(pred_class),
                         }
                     )
-            return panoptic_seg, segments_info
+
+            # semantic inference
+            if len(keep_idx) > 0:
+                mask_cls = mask_cls[keep_idx]
+                mask_pred = mask_pred[keep_idx]
+
+                sem_seg = torch.einsum("qc,qhw->chw", mask_cls, mask_pred)
+                temp_scale = 0.15
+                sem_seg = sem_seg/temp_scale
+                sem_seg = F.softmax(sem_seg, dim=0)
+
+            return panoptic_seg, segments_info, sem_seg
 
     def instance_inference(self, mask_cls, mask_pred):
         # mask_pred is already processed to have the same shape as original input
