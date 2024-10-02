@@ -1,6 +1,6 @@
 ## Class Labels for the COCO panoptic datasets
 Use these labels to add to the ROS configs
-
+```
 0: person
 1: bicycle
 2: car
@@ -134,4 +134,4 @@ Use these labels to add to the ROS configs
 130: rock-merged
 131: wall-other-merged
 132: rug-merged
- 
+ ```
