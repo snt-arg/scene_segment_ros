@@ -78,17 +78,33 @@ def getFilteredSegments(predictions: dict, classes: list):
     # Get the segment values and segment info
     segmentValues, segmentsInfo = predictions["panoptic_seg"]
     
+    # flatten the class list
+    classes_flat = []
+    for c in classes:
+        if isinstance(c, list):
+            classes_flat.extend(c)
+        else:
+            classes_flat.append(c)
+
     # Iterate over the segmentInfo to find the desired segments
     for segment in segmentsInfo:
         # Filter the segments
-        if segment["category_id"] in classes:
+        if segment["category_id"] in classes_flat:
             newSegmentInfo.append(segment)
 
     # Make a tuple
     filteredSegments["panoptic_seg"] = (segmentValues, newSegmentInfo)
     
     # Get probabilities and filter them
-    filteredProbs = torch.permute(
-        filteredSegments["sem_seg"], (1, 2, 0)).index_select(-1, torch.tensor(classes).to(device)).cpu().numpy()
-    
+    # if there are lists in the classes list, need to add those logits together
+    filteredProbs = torch.zeros(size=(filteredSegments["sem_seg"].shape[1], filteredSegments["sem_seg"].shape[2], len(classes)))
+    permutedProbs = torch.permute(filteredSegments["sem_seg"], (1, 2, 0))
+    for i, c in enumerate(classes):
+        if isinstance(c, list):
+            filteredProbs[:, :, i] = torch.sum(permutedProbs.index_select(-1, torch.tensor(c).to(device)), dim=-1).squeeze(-1)
+        else:
+            filteredProbs[:, :, i] = permutedProbs.index_select(-1, torch.tensor([c]).to(device)).squeeze(-1)
+
+    filteredProbs = filteredProbs.cpu().detach().numpy()
+
     return filteredSegments, filteredProbs
