@@ -66,7 +66,7 @@ The system has different configurations for each of the segmentation libraries, 
 
 ### Results Filtration
 
-In order get only the classes that you want (such as `wall` or `floor`), you need to know the identifier of the class in **Detectron2** ([link](https://github.com/facebookresearch/detectron2/blob/main/detectron2/data/datasets/builtin_meta.py)) and set the `category_id` in the [configuration file](config/cfg_pFCN.yaml). For instance, the array `[43, 52]` can detect `[floors, walls]` in the scene. 
+In order get only the classes that you want (such as `wall` or `floor`), you need to know the identifier of the class in **Detectron2** ([link](https://github.com/facebookresearch/detectron2/blob/main/detectron2/data/datasets/builtin_meta.py)) and set the `category_id` in the [configuration file](config/cfg_pFCN.yaml). For instance, the array `[43, 52]` can detect `[floors, walls]` in the scene.
 
 **Note**: For an exhaustive list of class labels for the COCO panoptic dataset, refer to [this](include/coco_panoptic_labels.md).
 
@@ -84,21 +84,21 @@ You can run the below launch files (accessible from `/launch` folder):
 
 ### Subscribed Topics
 
-| Topic                        | Description                                                                                           |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------- |
-| `/orb_slam3/keyframe_image`  | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) topic |
-| ---- `keyFrameId (UInt64)`   | the ID of the KeyFrame sent to be processed                                                           |
-| ---- `keyFrameImage (Image)` | the content of the KeyFrame image sent to be processed                                                |
+| Topic                          | Description                                                                                           |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `/orb_slam3/keyframe_image`    | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) topic |
+| ---- `key_frame_id (UInt64)`   | the ID of the KeyFrame sent to be processed                                                           |
+| ---- `key_frame_image (Image)` | the content of the KeyFrame image sent to be processed                                                |
 
 ### Published Topics
 
-| Topic                                          | Description                             |
-| ---------------------------------------------- | --------------------------------------- |
-| `/camera/color/image_segment`                  | the output semantically segmented topic |
-| ---- `keyFrameId (UInt64)`                     | the ID of the processed KeyFrame        |
-| ---- `segmentedImage (Image)`                  | the segmented image                     |
-| ---- `segmentedImageUncertainty (Image)`       | the segmented image uncertainty values  |
-| ---- `segmentedImageProbability (PointCloud2)` | the segmented image probability values  |
+| Topic                                            | Description                             |
+| ------------------------------------------------ | --------------------------------------- |
+| `/camera/color/image_segment`                    | the output semantically segmented topic |
+| ---- `key_frame_id (UInt64)`                     | the ID of the processed KeyFrame        |
+| ---- `segmented_image (Image)`                   | the segmented image                     |
+| ---- `segmented_image_uncertainty (Image)`       | the segmented image uncertainty values  |
+| ---- `segmented_image_probability (PointCloud2)` | the segmented image probability values  |
 
 ## 📅 TODO
 
