@@ -1,16 +1,20 @@
-params:
-  image_params:
-    image_size: 640
-  ros_topics:
-    raw_image_topic: "/vs_graphs/keyframe_image"
-    segmented_image_topic: "/camera/color/image_segment"
-    segmented_image_vis: "/camera/color/image_segment_vis"
-  model_params:
-    model_name: "PanopticFCN"
-    # model_path: "include/panoptic_fcn_star_r50_3x.pth"
-    model_path: "include/panoptic_fcn_star_r50_3x.pth"
-    # model_config: "src/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
-    model_config: "src/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
-    conf: 0.4
-  output:
-    classes: [43, 52] # 43: Floor, 52: Wall
+segmenter_ros:
+  ros__parameters:
+    params:
+      image_params:
+        image_size: 640
+      ros_topics:
+        # Subscriber
+        raw_image_topic: "/vs_graphs/keyframe_image"
+        # Publisher
+        segmented_image_topic: "/camera/color/image_segment"
+        segmented_image_vis: "/camera/color/image_segment_vis"
+      model_params:
+        model_name: "PanopticFCN"
+        model_path: "include/panoptic_fcn_star_r50_3x.pth"
+        model_config: "src/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
+        conf: 0.4
+      output:
+        classes: [43, 52]
+        # 💡 [Classes] wall: {52}, ground: {43}
+    visualize: true
