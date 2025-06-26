@@ -4,7 +4,7 @@ segmenter_ros:
       image_params:
         image_size: 640
       ros_topics:
-        raw_image_topic: "/RGBD/keyframe_image"
+        raw_image_topic: "/vs_graphs/keyframe_image"
         segmented_image_topic: "/camera/color/image_segment"
         segmented_image_vis: "/camera/color/image_segment_vis"
       model_params:
@@ -16,10 +16,8 @@ segmenter_ros:
       output:
         classes: [87, 122, 109, 110, 111, 112, 131]
     visualize: true
-
-
 # params:
-  
+
 #   image_params:
 #     image_size: 640
 #   ros_topics:
@@ -35,12 +33,11 @@ segmenter_ros:
 #   output:
 #     classes: [[87, 122], [109, 110, 111, 112, 131]]
 #     # classes: [86, 114, 115, 118, 122, [109, 110, 111, 112, 131]]
-    
 
 # Classes:
 # door                                           86
-# window-blind                                  114    
-# window-other                                  115 
+# window-blind                                  114
+# window-other                                  115
 # ceiling-other-merged                          118
-# floor                                         87, 122 
+# floor                                         87, 122
 # wall                                          109, 110, 111, 112, 131
