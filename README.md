@@ -86,7 +86,7 @@ You can run the below launch files (accessible from `/launch` folder):
 
 | Topic                          | Description                                                                                           |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| `/orb_slam3/keyframe_image`    | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) topic |
+| `/vs_graphs/keyframe_image`    | for providing input KeyFrames to be segmented (for normal frames use `/camera/color/image_raw`) topic |
 | ---- `key_frame_id (UInt64)`   | the ID of the KeyFrame sent to be processed                                                           |
 | ---- `key_frame_image (Image)` | the content of the KeyFrame image sent to be processed                                                |
 
