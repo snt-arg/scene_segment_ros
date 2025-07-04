@@ -16,7 +16,9 @@ segmenter_ros:
         conf: 0.5
         overlap: 0.98
       output:
-        classes: [87, 122, 109, 110, 111, 112, 131]
+        classes:
+          ground: [87, 122]
+          wall: [109, 110, 111, 112, 131]
         # 💡 [Coco Classes] wall: {109, 110, 111, 112, 131}, ground: {87, 122},
         #                   ceiling: {118}, door: {86}, window: {114, 115}
     visualize: true
