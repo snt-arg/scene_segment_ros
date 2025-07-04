@@ -28,11 +28,12 @@ class Segmenter(Node):
         cleanMemory()
 
         # Configuration parameters
-        self.classes = (
-            self.get_parameter("params.output.classes")
-            .get_parameter_value()
-            .integer_array_value.tolist()
-        )
+        ground_ids = self.get_parameter(
+            "params.output.classes.ground").get_parameter_value().integer_array_value.tolist()
+        wall_ids = self.get_parameter(
+            "params.output.classes.wall").get_parameter_value().integer_array_value.tolist()
+        self.classes = [ground_ids, wall_ids]
+
         self.conf = (
             self.get_parameter("params.model_params.conf")
             .get_parameter_value()
@@ -170,7 +171,6 @@ def main(args=None):
     finally:
         if node is not None:
             node.destroy_node()
-        rclpy.shutdown()
 
 
 if __name__ == "__main__":
