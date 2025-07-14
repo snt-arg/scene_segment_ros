@@ -1,32 +1,38 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>segmenter_ros</name>
-  <version>1.0.0</version>
-  <description>The Scene Segmentation package</description>
+  <version>1.2.0</version>
+  <description>The Scene Segmentation package (ROS2)</description>
 
-  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <!-- Maintainers -->
   <maintainer email="ali.tourani@uni.lu">Ali Tourani</maintainer>
   <maintainer email="hriday.bavle@uni.lu">Hriday Bavle</maintainer>  
   <maintainer email="ejazsaad0332@gmail.com">Saad Ejaz</maintainer>
   <maintainer email="maych727@gmail.com">Maxime Capdouze</maintainer>
-  <maintainer email="maych727@gmail.com">Christophe Mayers</maintainer>  
+  <maintainer email="asier.bikandi@uni.lu">Asier Bikandi</maintainer>  
 
-  <!-- One license tag required, multiple allowed, one license per tag -->
+  <!-- License -->
   <license>GPLv3</license>
 
-  <!-- Url tags are optional, but multiple are allowed, one per tag -->
-  <url type="website">https://github.com/snt-arg/scene_segment_ros</url>
+  <!-- Optional -->
+  <!-- <url type="website">https://github.com/snt-arg/scene_segment_ros</url> -->
 
-  <build_depend>message_generation</build_depend>
-  <exec_depend>message_runtime</exec_depend>
+  <!-- Build system -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>rospy</build_depend>
-  <build_export_depend>rospy</build_export_depend>
-  <exec_depend>rospy</exec_depend>
+  <depend>rclpy</depend>
+  <depend>builtin_interfaces</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  
+  <build_depend>rosidl_default_generators</build_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

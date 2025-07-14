@@ -1,3 +1,3 @@
-Header header
-std_msgs/UInt64 keyFrameId
-sensor_msgs/Image keyFrameImage
+std_msgs/Header header
+std_msgs/UInt64 key_frame_id
+sensor_msgs/Image key_frame_image
