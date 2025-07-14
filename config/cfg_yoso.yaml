@@ -1,23 +1,24 @@
-params:
-  image_params:
-    image_size: 640
-  ros_topics:
-    raw_image_topic: "/vs_graphs/keyframe_image"
-    segmented_image_topic: "/camera/color/image_segment"
-    segmented_image_vis: "/camera/color/image_segment_vis"
-  model_params:
-    model_name: "YOSO"
-    model_path: "include/yoso_res50_coco.pth"
-    model_config: "src/yoso/config/coco/YOSO-R50.yaml"
-    conf: 0.5
-    overlap: 0.98
-  output:
-    classes: [[87, 122], [109, 110, 111, 112, 131]]
-    # classes: [86, 114, 115, 118, 122, [109, 110, 111, 112, 131]]
-# Classes:
-# door                                           86
-# window-blind                                  114
-# window-other                                  115
-# ceiling-other-merged                          118
-# floor                                         87, 122
-# wall                                          109, 110, 111, 112, 131
+segmenter_ros:
+  ros__parameters:
+    params:
+      image_params:
+        image_size: 640
+      ros_topics:
+        # Subscriber
+        raw_image_topic: "/vs_graphs/keyframe_image"
+        # Publisher
+        segmented_image_topic: "/camera/color/image_segment"
+        segmented_image_vis: "/camera/color/image_segment_vis"
+      model_params:
+        model_name: "YOSO"
+        model_path: "include/yoso_res50_coco.pth"
+        model_config: "src/yoso/config/coco/YOSO-R50.yaml"
+        conf: 0.5
+        overlap: 0.98
+      output:
+        classes:
+          ground: [87, 122]
+          wall: [109, 110, 111, 112, 131]
+        # 💡 [Coco Classes] wall: {109, 110, 111, 112, 131}, ground: {87, 122},
+        #                   ceiling: {118}, door: {86}, window: {114, 115}
+    visualize: true
