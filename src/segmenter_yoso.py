@@ -7,8 +7,8 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from modelRunner import yosoInit, yosoSegmenter
 from utils.helpers import cleanMemory, monitorParams
-from utils.semantic_utils import probabilities2ROSMsg
 from output import yosoVisualizer, entropyVisualizer
+from utils.semantic_utils import probabilities2ROSMsg
 from ament_index_python import get_package_share_directory
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 

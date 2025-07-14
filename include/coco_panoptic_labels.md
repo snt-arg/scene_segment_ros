@@ -1,6 +1,8 @@
-## Class Labels for the COCO panoptic datasets
-Use these labels to add to the ROS configs
-```
+## 🏷️ Class Labels for COCO Panoptic Dataset
+
+These are the standard class labels used in the `COCO` Panoptic dataset. You can use them to configure label-to-name mappings in your ROS parameters or YAML config files.
+
+```yaml
 0: person
 1: bicycle
 2: car
@@ -134,4 +136,4 @@ Use these labels to add to the ROS configs
 130: rock-merged
 131: wall-other-merged
 132: rug-merged
- ```
+```
