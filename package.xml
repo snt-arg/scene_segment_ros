@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>segmenter_ros</name>
-  <version>1.0.0</version>
-  <description>The Scene Segmentation package</description>
+  <version>1.2.0</version>
+  <description>The Scene Segmentation package (ROS2)</description>
 
   <!-- Maintainers -->
   <maintainer email="ali.tourani@uni.lu">Ali Tourani</maintainer>
   <maintainer email="hriday.bavle@uni.lu">Hriday Bavle</maintainer>  
   <maintainer email="ejazsaad0332@gmail.com">Saad Ejaz</maintainer>
   <maintainer email="maych727@gmail.com">Maxime Capdouze</maintainer>
-  <maintainer email="maych727@gmail.com">Christophe Mayers</maintainer>  
   <maintainer email="asier.bikandi@uni.lu">Asier Bikandi</maintainer>  
 
   <!-- License -->
