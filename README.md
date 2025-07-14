@@ -7,9 +7,7 @@
 ## 🧠 Overview
 
 **Semantic Scene Segmenter** is a modular framework for real-time scene segmentation using configurable, state-of-the-art models. It supports semantic understanding of visual data for robotics and perception systems.
-This tool is primarily designed to integrate with the [vS-Graphs](https://github.com/snt-arg/visual_sgraphs) pipeline, where frames captured from a robot's camera are forwarded to this module for scene segmentation.
-
-The framework currently covers two main modules, including **[FastSAM](https://github.com/CASIA-IVA-Lab/FastSAM)** for real-time scene segmentation and **[PanopticFCN](https://github.com/dvlab-research/PanopticFCN)** for real-time scene segmentation and semantic object detection.
+This tool is primarily designed to integrate with the [vS-Graphs](https://github.com/snt-arg/visual_sgraphs) (ROS2 Jazzy) pipeline, where frames captured from a robot's camera are forwarded to this module for scene segmentation.
 
 ### 📊 Benchmarking
 
