@@ -9,46 +9,78 @@ from modelRunner import pFCNSegmenter, pFCNInit
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
 from output import pFCNVisualizer, entropyVisualizer
+from ament_index_python import get_package_share_directory
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
 
 
 class Segmenter(Node):
     def __init__(self):
-        super().__init__("segmenter_pFCN")
+        # Variables
+        self.pkg_share_directory = get_package_share_directory("segmenter_ros")
+        super().__init__(
+            "segmenter",
+            allow_undeclared_parameters=True,
+            automatically_declare_parameters_from_overrides=True,
+        )
+
         # Initial checks
         monitorParams()
         cleanMemory()
 
-        # Declare and get parameters
-        self.declare_parameter("params", None)
-        self.declare_parameter("visualize", True)
-        params = self.get_parameter("params").get_parameter_value().string_value
+        # Configuration parameters
+        ground_ids = self.get_parameter(
+            "params.output.classes.ground").get_parameter_value().integer_array_value.tolist()
+        wall_ids = self.get_parameter(
+            "params.output.classes.wall").get_parameter_value().integer_array_value.tolist()
+        self.classes = [ground_ids, wall_ids]
+
+        self.conf = (
+            self.get_parameter("params.model_params.conf")
+            .get_parameter_value()
+            .double_value
+        )
+        self.overlap = (
+            self.get_parameter("params.model_params.overlap")
+            .get_parameter_value()
+            .double_value
+        )
         self.visualize = (
             self.get_parameter("visualize").get_parameter_value().bool_value
         )
-
-        import yaml
-
-        if isinstance(params, str):
-            params = yaml.safe_load(params)
-        else:
-            self.get_logger().error("No 'params' parameter provided!")
-            params = {}
-
-        self.classes = params.get("output", {}).get("classes", [])
-        self.conf = params.get("model_params", {}).get("conf", 0.5)
-        modelName = params.get("model_params", {}).get("model_name", "")
-        modelPath = params.get("model_params", {}).get("model_path", "")
-        modelConfig = params.get("model_params", {}).get("model_config", "")
-        self.imageSize = params.get("image_params", {}).get("image_size", 640)
-        rawImageTopic = params.get("ros_topics", {}).get(
-            "raw_image_topic", "/raw_image"
+        modelName = (
+            self.get_parameter("params.model_params.model_name")
+            .get_parameter_value()
+            .string_value
         )
-        segImageTopic = params.get("ros_topics", {}).get(
-            "segmented_image_topic", "/segmented_image"
+        modelPath = (
+            self.get_parameter("params.model_params.model_path")
+            .get_parameter_value()
+            .string_value
         )
-        segImageVisTopic = params.get("ros_topics", {}).get(
-            "segmented_image_vis", "/segmented_image_vis"
+        modelConfig = (
+            self.get_parameter("params.model_params.model_config")
+            .get_parameter_value()
+            .string_value
+        )
+        self.imageSize = (
+            self.get_parameter("params.image_params.image_size")
+            .get_parameter_value()
+            .integer_value
+        )
+        rawImageTopic = (
+            self.get_parameter("params.ros_topics.raw_image_topic")
+            .get_parameter_value()
+            .string_value
+        )
+        segImageTopic = (
+            self.get_parameter("params.ros_topics.segmented_image_topic")
+            .get_parameter_value()
+            .string_value
+        )
+        segImageVisTopic = (
+            self.get_parameter("params.ros_topics.segmented_image_vis")
+            .get_parameter_value()
+            .string_value
         )
 
         # Initialize the segmentation module
@@ -58,8 +90,10 @@ class Segmenter(Node):
         self.create_subscription(VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
-        self.publisherSeg = self.create_publisher(SegmenterDataMsg, segImageTopic, 10)
-        self.publisherSegVis = self.create_publisher(Image, segImageVisTopic, 10)
+        self.publisherSeg = self.create_publisher(
+            SegmenterDataMsg, segImageTopic, 10)
+        self.publisherSegVis = self.create_publisher(
+            Image, segImageVisTopic, 10)
 
         # ROS Bridge
         self.bridge = CvBridge()
