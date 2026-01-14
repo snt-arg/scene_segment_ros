@@ -4,6 +4,9 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
+import numpy as np
+import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from modelRunner import yosoInit, yosoSegmenter
 from utils.helpers import cleanMemory, monitorParams
@@ -90,7 +93,7 @@ class Segmenter(Node):
 
         # Subscribers (to vS-Graphs)
         self.create_subscription(
-            VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
+            CompressedImage, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
         self.publisherSeg = self.create_publisher(
@@ -104,51 +107,63 @@ class Segmenter(Node):
     def segmentation(self, imageMessage):
         try:
             # Parse the input data
-            key_frame_id = imageMessage.key_frame_id
-            key_frame_image = imageMessage.key_frame_image
+            # key_frame_id = imageMessage.key_frame_id
+            # key_frame_image = imageMessage.key_frame_image
 
             # Convert the ROS Image message to a CV2 image
-            cvImage = self.bridge.imgmsg_to_cv2(key_frame_image, "bgr8")
+            # PRINT ROS INFO INSIDE CALLBACK
+            # self.get_logger().info("[Segmenter] Received image for segmentation.")
+            np_arr = np.frombuffer(imageMessage.data, np.uint8)
+            cvImage = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+            # convert to bgr8
+            cvImage = cv2.cvtColor(cvImage, cv2.COLOR_RGB2BGR)
+
+            #cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
             # Processing
             filteredSegments, filteredProbs = yosoSegmenter(
                 cvImage, self.model, self.classes
             )
-            if self.visualize:
-                segmented_image = yosoVisualizer(
-                    cvImage, filteredSegments, self.cfg)
+           
+            segmented_image = yosoVisualizer(
+                cvImage, filteredSegments, self.cfg)
             segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
 
+            segmented_image_msg = self.bridge.cv2_to_imgmsg(segmented_image, "bgr8")
+            segmented_image_msg.header.stamp = imageMessage.header.stamp
+            segmented_image_msg.header.frame_id = imageMessage.header.frame_id
+            self.publisherSegVis.publish(segmented_image_msg)
+
             # Convert to ROS message
-            pcdProbabilities = probabilities2ROSMsg(
-                filteredProbs, imageMessage.header.stamp, imageMessage.header.frame_id
-            )
+            # pcdProbabilities = probabilities2ROSMsg(
+            #     filteredProbs, imageMessage.header.stamp, imageMessage.header.frame_id
+            # )
 
-            # Create a header with the current time
-            header = Header()
-            now = self.get_clock().now().to_msg()
-            header.stamp = now
-            header.frame_id = imageMessage.header.frame_id
+            # # Create a header with the current time
+            # header = Header()
+            # now = self.get_clock().now().to_msg()
+            # header.stamp = now
+            # header.frame_id = imageMessage.header.frame_id
 
-            # Publish the processed image to vS-Graphs
-            segmenterData = SegmenterDataMsg()
-            segmenterData.header = header
-            segmenterData.key_frame_id = key_frame_id
-            if self.visualize:
-                segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
-                    segmented_image, "bgr8"
-                )
-            segmenterData.segmented_image_uncertainty = self.bridge.cv2_to_imgmsg(
-                segmentedUncImage, "bgr8"
-            )
-            segmenterData.segmented_image_probability = pcdProbabilities
-            self.publisherSeg.publish(segmenterData)
+            # # Publish the processed image to vS-Graphs
+            # segmenterData = SegmenterDataMsg()
+            # segmenterData.header = header
+            # segmenterData.key_frame_id = #key_frame_id
+            # if self.visualize:
+            #     segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
+            #         segmented_image, "bgr8"
+            #     )
+            # segmenterData.segmented_image_uncertainty = self.bridge.cv2_to_imgmsg(
+            #     segmentedUncImage, "bgr8"
+            # )
+            # segmenterData.segmented_image_probability = pcdProbabilities
+            # self.publisherSeg.publish(segmenterData)
 
-            if self.visualize:
-                # Publish the processed image for visualization
-                visualizationImgMsg = segmenterData.segmented_image
-                visualizationImgMsg.header = header
-                self.publisherSegVis.publish(visualizationImgMsg)
+            # if self.visualize:
+            #     # Publish the processed image for visualization
+            #     visualizationImgMsg = segmenterData.segmented_image
+            #     visualizationImgMsg.header = header   
+            #     self.publisherSegVis.publish(visualizationImgMsg)
 
         except CvBridgeError as e:
             self.get_logger().error(f"[Segmenter] CvBridge error: {e}")

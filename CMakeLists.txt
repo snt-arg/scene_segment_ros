@@ -7,6 +7,7 @@ find_package(builtin_interfaces REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(backward_ros REQUIRED)
 
 # Message generation
 set(msg_files

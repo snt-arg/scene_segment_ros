@@ -5,7 +5,7 @@ segmenter_ros:
         image_size: 640
       ros_topics:
         # Subscriber
-        raw_image_topic: "/vs_graphs/keyframe_image"
+        raw_image_topic: "/cam0/image_undistorted/compressed" # /vs_graphs/keyframe_image
         # Publisher
         segmented_image_topic: "/camera/color/image_segment"
         segmented_image_vis: "/camera/color/image_segment_vis"
@@ -21,4 +21,4 @@ segmenter_ros:
           wall: [109, 110, 111, 112, 131]
         # 💡 [Coco Classes] wall: {109, 110, 111, 112, 131}, ground: {87, 122},
         #                   ceiling: {118}, door: {86}, window: {114, 115}
-    visualize: true
+    visualize: True

@@ -8,7 +8,7 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     # Declare launch arguments
     node_name_arg = DeclareLaunchArgument('node_name', default_value='segmenter_ros')
-    visualize_arg = DeclareLaunchArgument('visualize', default_value='true')
+    visualize_arg = DeclareLaunchArgument('visualize', default_value='false')
 
     # Set path to the config file
     config_file_path = os.path.join(
