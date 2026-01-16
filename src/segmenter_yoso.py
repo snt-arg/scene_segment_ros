@@ -163,6 +163,7 @@ class Segmenter(Node):
                     segmentedUncImage, "bgr8"
                 )
                 segmenterData.segmented_image_probability = pcdProbabilities
+                segmenterData.is_segmented = True
                 self.publisherSeg.publish(segmenterData)
 
                 # # if self.visualize:

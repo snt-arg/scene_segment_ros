@@ -3,3 +3,4 @@ int32 key_frame_id
 sensor_msgs/Image segmented_image
 sensor_msgs/Image segmented_image_uncertainty
 sensor_msgs/PointCloud2 segmented_image_probability
+bool is_segmented
