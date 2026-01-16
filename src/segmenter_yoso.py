@@ -10,8 +10,7 @@ from utils.helpers import cleanMemory, monitorParams
 from output import yosoVisualizer, entropyVisualizer
 from utils.semantic_utils import probabilities2ROSMsg
 from ament_index_python import get_package_share_directory
-from segmenter_ros.msg import SegmenterDataMsg
-from situational_graphs_reasoning_msgs.msg import GraphKeyframes
+from situational_graphs_reasoning_msgs.msg import GraphKeyframes, SegmentationData
 
 
 class Segmenter(Node):
@@ -99,7 +98,7 @@ class Segmenter(Node):
         self.create_subscription(GraphKeyframes, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
-        self.publisherSeg = self.create_publisher(SegmenterDataMsg, segImageTopic, 10)
+        self.publisherSeg = self.create_publisher(SegmentationData, segImageTopic, 10)
         self.publisherSegVis = self.create_publisher(Image, segImageVisTopic, 10)
 
         # ROS Bridge
@@ -152,7 +151,7 @@ class Segmenter(Node):
                 header.frame_id = keyframe.header.frame_id
 
                 # Publish the processed image to vS-Graphs
-                segmenterData = SegmenterDataMsg()
+                segmenterData = SegmentationData()
                 segmenterData.header = header
                 segmenterData.key_frame_id = key_frame_id
                 # # if self.visualize:
