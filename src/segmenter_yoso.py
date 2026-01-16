@@ -11,7 +11,7 @@ from output import yosoVisualizer, entropyVisualizer
 from utils.semantic_utils import probabilities2ROSMsg
 from ament_index_python import get_package_share_directory
 from segmenter_ros.msg import SegmenterDataMsg
-from situational_graphs_reasoning_msgs.msg import GraphKeyframes, Keyframe
+from situational_graphs_reasoning_msgs.msg import GraphKeyframes
 
 
 class Segmenter(Node):
@@ -128,46 +128,48 @@ class Segmenter(Node):
                 cvImage = self.bridge.imgmsg_to_cv2(key_frame_image, "bgr8")
 
                 # Processing
+
                 filteredSegments, filteredProbs = yosoSegmenter(
                     cvImage, self.model, self.classes
                 )
                 self.get_logger().info(
                     f"[Segmenter] FINISHED PROCESSING keyframe {key_frame_id}."
                 )
-                # if self.visualize:
-                #     segmented_image = yosoVisualizer(cvImage, filteredSegments, self.cfg)
-                # segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
-
-                # # Convert to ROS message
-                # pcdProbabilities = probabilities2ROSMsg(
-                #     filteredProbs, imageMessage.header.stamp, imageMessage.header.frame_id
-                # )
-
-                # # Create a header with the current time
-                # header = Header()
-                # now = self.get_clock().now().to_msg()
-                # header.stamp = now
-                # header.frame_id = imageMessage.header.frame_id
-
-                # # Publish the processed image to vS-Graphs
-                # segmenterData = SegmenterDataMsg()
-                # segmenterData.header = header
-                # segmenterData.key_frame_id = key_frame_id
-                # if self.visualize:
-                #     segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
-                #         segmented_image, "bgr8"
-                #     )
-                # segmenterData.segmented_image_uncertainty = self.bridge.cv2_to_imgmsg(
-                #     segmentedUncImage, "bgr8"
-                # )
-                # segmenterData.segmented_image_probability = pcdProbabilities
-                # self.publisherSeg.publish(segmenterData)
 
                 # if self.visualize:
-                #     # Publish the processed image for visualization
-                #     visualizationImgMsg = segmenterData.segmented_image
-                #     visualizationImgMsg.header = header
-                #     self.publisherSegVis.publish(visualizationImgMsg)
+                segmented_image = yosoVisualizer(cvImage, filteredSegments, self.cfg)
+                segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
+
+                # Convert to ROS message
+                pcdProbabilities = probabilities2ROSMsg(
+                    filteredProbs, keyframe.header.stamp, keyframe.header.frame_id
+                )
+
+                # Create a header with the current time
+                header = Header()
+                now = self.get_clock().now().to_msg()
+                header.stamp = now
+                header.frame_id = keyframe.header.frame_id
+
+                # Publish the processed image to vS-Graphs
+                segmenterData = SegmenterDataMsg()
+                segmenterData.header = header
+                segmenterData.key_frame_id = key_frame_id
+                # # if self.visualize:
+                segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
+                    segmented_image, "bgr8"
+                )
+                segmenterData.segmented_image_uncertainty = self.bridge.cv2_to_imgmsg(
+                    segmentedUncImage, "bgr8"
+                )
+                segmenterData.segmented_image_probability = pcdProbabilities
+                self.publisherSeg.publish(segmenterData)
+
+                # # if self.visualize:
+                # Publish the processed image for visualization
+                visualizationImgMsg = segmenterData.segmented_image
+                visualizationImgMsg.header = header
+                self.publisherSegVis.publish(visualizationImgMsg)
 
             except CvBridgeError as e:
                 self.get_logger().error(f"[Segmenter] CvBridge error: {e}")
