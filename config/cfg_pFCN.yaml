@@ -16,7 +16,8 @@ segmenter_ros:
         conf: 0.4
       output:
         classes:
-          ground: [43]
           wall: [52]
-        # 💡 [Classes] wall: {52}, ground: {43}
+          door: [15]
+          ground: [43]
+        # 💡 [ADE20K Classes] wall: {52}, door: {15}, ground: {43}
     visualize: true

@@ -87,7 +87,7 @@ The system has different configurations for each of the segmentation libraries, 
 
 ### 💡 Results Filtration
 
-In order get only the classes that you want (such as `wall` or `floor`), you need to know the identifier of the class in **Detectron2** ([link](https://github.com/facebookresearch/detectron2/blob/main/detectron2/data/datasets/builtin_meta.py)) and set the `output/classes` in the [configuration file](/config). For a complete list of class labels for the `COCO` panoptic dataset, you can use [this documentation](include/coco_panoptic_labels.md).
+In order get only the classes that you want (such as `wall` or `floor`), you need to know the identifier of the class in **Detectron2** ([link](https://github.com/facebookresearch/detectron2/blob/main/detectron2/data/datasets/builtin_meta.py)) and set the `output/classes` in the [configuration file](/config). For a complete list of class labels for the `COCO` panoptic dataset (mainly used by YOSO), you can use [this documentation](include/coco_panoptic_labels.md). Additionally, for the `ADE20K` dataset (mainly used by PanopticFCN), you can refer to [this documentation](include/ade20k_labels.md).
 
 ## 🤖 ROS Topics and Parameters
 
