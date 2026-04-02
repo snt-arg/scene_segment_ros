@@ -32,7 +32,9 @@ class Segmenter(Node):
             "params.output.classes.ground").get_parameter_value().integer_array_value.tolist()
         wall_ids = self.get_parameter(
             "params.output.classes.wall").get_parameter_value().integer_array_value.tolist()
-        self.classes = [ground_ids, wall_ids]
+        door_ids = self.get_parameter(
+                "params.output.classes.door").get_parameter_value().integer_array_value.tolist()
+        self.classes = [ground_ids, wall_ids, door_ids]
 
         self.conf = (
             self.get_parameter("params.model_params.conf")
