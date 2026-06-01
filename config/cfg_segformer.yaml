@@ -1,0 +1,24 @@
+segmenter_ros:
+  ros__parameters:
+    params:
+      model_params:
+        model_name: "nvidia/segformer-b0-finetuned-ade-512-512"
+        conf: 0.25
+
+      image_params:
+        image_size: 640
+
+      output:
+        classes:
+          ground: [ 0 ]
+          wall: [ 1 ]
+
+      ros_topics:
+        # Subscriber
+        raw_image_topic: "/vs_graphs/keyframe_image"
+
+        # Publisher
+        segmented_image_topic: "/camera/color/image_segment"
+        segmented_image_vis: "/camera/color/image_segment_vis"
+
+    visualize: true

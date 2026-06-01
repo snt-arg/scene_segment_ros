@@ -87,7 +87,8 @@ class Segmenter(Node):
         self.model, self.cfg = pFCNInit(modelName, modelPath, modelConfig)
 
         # Subscribers (to vS-Graphs)
-        self.create_subscription(VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
+        self.create_subscription(
+            VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
         self.publisherSeg = self.create_publisher(
@@ -112,7 +113,8 @@ class Segmenter(Node):
                 cvImage, self.model, self.classes
             )
             if self.visualize:
-                segmented_image = pFCNVisualizer(cvImage, filteredSegments, self.cfg)
+                segmented_image = pFCNVisualizer(
+                    cvImage, filteredSegments, self.cfg)
             segmentedUncImage = entropyVisualizer(filteredSegments["sem_seg"])
 
             # Convert to ROS message

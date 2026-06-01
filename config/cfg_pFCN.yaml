@@ -12,11 +12,11 @@ segmenter_ros:
       model_params:
         model_name: "PanopticFCN"
         model_path: "include/panoptic_fcn_star_r50_3x.pth"
-        model_config: "src/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
+        model_config: "segmenter_ros/panopticfcn/config/PanopticFCN-Star-R50-3x-FAST.yaml"
         conf: 0.4
       output:
         classes:
-          ground: [43]
-          wall: [52]
+          ground: [ 43 ]
+          wall: [ 52 ]
         # 💡 [Classes] wall: {52}, ground: {43}
     visualize: true
