@@ -2,14 +2,15 @@
 
 import torch
 import rclpy
+from pathlib import Path
 from rclpy.node import Node
-from ultralytics import YOLO
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 from output import yoloVisualizer
 from output import entropyVisualizer
+from modelRunner import yoloInit
 from modelRunner import yoloSegmenter
 
 from utils.helpers import cleanMemory, monitorParams
@@ -81,6 +82,10 @@ class Segmenter(Node):
             .string_value
         )
 
+        # Make directory an absolute path
+        modelPath = Path(self.pkg_share_directory) / modelPath
+        self.get_logger().info(f"[Segmenter] Loading model from: {modelPath}")
+
         modelConfig = (
             self.get_parameter("params.model_params.model_config")
             .get_parameter_value()
@@ -112,7 +117,12 @@ class Segmenter(Node):
         )
 
         # Initial the segmentation module
-        self.model = YOLO(modelPath, task="semantic")
+        self.model, self.model_cfg = yoloInit(
+            modelName,
+            modelPath,
+            modelConfig,
+            self.conf
+        )
 
         # Subscribers (to vS-Graphs)
         self.create_subscription(

@@ -12,7 +12,6 @@ segmenter_ros:
       model_params:
         model_name: "YOLO26"
         model_path: "include/yolo26n-sem.pt"
-        # model_config: "src/yoso/config/coco/YOSO-R50.yaml"
         conf: 0.5
         overlap: 0.98
       output:

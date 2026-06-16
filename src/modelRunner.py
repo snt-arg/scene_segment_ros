@@ -134,6 +134,46 @@ def yosoSegmenter(image, model, classes):
     return filteredSegments, filteredProbs
 
 
+def yoloInit(name: str, modelPath: str, configPath: str = "", confidence=0.5):
+    """
+    Initializes an Ultralytics YOLO segmentation model.
+
+    Parameters
+    ----------
+    name: str
+        Model name.
+    modelPath: str
+        Path to YOLO weights.
+    configPath: str
+        Unused for Ultralytics YOLO.
+    confidence: float
+        Confidence threshold.
+
+    Returns
+    -------
+    model:
+        Initialized YOLO model.
+    cfg:
+        Small dict with runtime settings.
+    """
+    from ultralytics import YOLO
+
+    print(f'Initializing "{name}" model ...')
+    print(f"Using model path: {modelPath}")
+
+    model = YOLO(modelPath)
+
+    cfg = {
+        "name": name,
+        "model_path": modelPath,
+        "confidence": confidence,
+        "device": 0 if DEVICE.type == "cuda" else "cpu",
+    }
+
+    print("Model loaded and is ready to use!\n")
+    return model, cfg
+
+
 def yoloSegmenter(image, model, classes):
     """
     Segments the given image using YOLO segmentation.
