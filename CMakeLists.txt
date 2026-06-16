@@ -16,7 +16,7 @@ install(PROGRAMS
 
 # Install other needed files
 install(DIRECTORY
-  config launch src
+  config launch src include
   DESTINATION share/${PROJECT_NAME}
 )
 
