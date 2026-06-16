@@ -1,4 +1,4 @@
-## 🏷️ Class Labels for COCO Panoptic Dataset
+## 🏷️ Class Labels for COCO Panoptic Dataset (used by YOSO)
 
 These are the standard class labels used in the `COCO` Panoptic dataset. You can use them to configure label-to-name mappings in your ROS parameters or YAML config files.
 
