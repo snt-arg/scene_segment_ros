@@ -130,3 +130,77 @@ def yosoSegmenter(image, model, classes):
     predictions = model(image)
     filteredSegments, filteredProbs = getFilteredSegments(predictions, classes)
     return filteredSegments, filteredProbs
+
+
+def yoloInit(name: str, modelPath: str, configPath: str = None, confidence=0.5):
+    """
+    Initializes YOLO segmentation model.
+
+    Parameters
+    ----------
+    name: str
+        The name of the model.
+    modelPath: str
+        Path to the YOLO model weights.
+    configPath: str
+        Optional config path. Not required for Ultralytics YOLO.
+    confidence: float
+        Confidence threshold.
+
+    Returns
+    -------
+    model
+        Initialized YOLO model.
+    cfg
+        Optional configuration object. For YOLO, this can be None or a small dict.
+    """
+    from ultralytics import YOLO
+
+    print(f'Initializing "{name}" model ...')
+
+    modelPath = getRootAbsolutePath(modelPath)
+
+    model = YOLO(modelPath)
+
+    cfg = {
+        "confidence": confidence,
+        "device": DEVICE.type,
+    }
+
+    print("Model loaded and is ready to use!\n")
+    return model, cfg
+
+
+def yoloSegmenter(image, model, classes, confidence=0.5):
+    """
+    Segments the given image using YOLO segmentation.
+
+    Parameters
+    ----------
+    image: Mat
+        Input image, usually OpenCV BGR image.
+    model
+        YOLO model.
+    classes: list
+        List of class IDs or class names to keep.
+    confidence: float
+        Confidence threshold.
+
+    Returns
+    -------
+    filteredSegments
+        Filtered segmentation output.
+    filteredProbs
+        Per-pixel probability matrix or equivalent representation.
+    """
+    results = model.predict(
+        source=image,
+        conf=confidence,
+        device=0 if DEVICE.type == "cuda" else "cpu",
+        verbose=False,
+    )
+
+    predictions = results[0]
+
+    filteredSegments, filteredProbs = getFilteredSegments(predictions, classes)
+    return filteredSegments, filteredProbs

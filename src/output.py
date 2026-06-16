@@ -50,13 +50,14 @@ def entropyVisualizer(predictions):
     """
     # Compute the entropy
     entropy = -torch.sum(predictions *
-                         torch.log(predictions+1e-10), axis=0) * 255
+                         torch.log(predictions + 1e-10), axis=0) * 255
     entropy = entropy.to("cpu").numpy().astype(np.uint8)
     # Generate color map from probabilities (black 0 - white 1)
     colorMap = cv2.applyColorMap(
         (entropy).astype(np.uint8), cv2.COLORMAP_BONE)
     # Return
     return colorMap
+
 
 def yosoVisualizer(image, predictions, cfg):
     """
@@ -82,3 +83,42 @@ def yosoVisualizer(image, predictions, cfg):
     colorMap = ranModel.get_image()[:, :, ::-1]
     # Return
     return colorMap
+
+
+def yoloVisualizer(image, predictions):
+    """
+    Visualizes YOLO segmentation output.
+
+    This function accepts either:
+    1. an Ultralytics Results object, or
+    2. a dict/list-like custom filtered output if modelRunner creates one.
+
+    Parameters
+    ----------
+    image:
+        Original OpenCV BGR image.
+    predictions:
+        YOLO prediction/filtered segment output.
+
+    Returns
+    -------
+    result:
+        BGR visualization image.
+    """
+
+    # Case 1: Ultralytics Results object
+    if hasattr(predictions, "plot"):
+        return predictions.plot()
+
+    # Case 2: list of binary masks
+    result = image.copy()
+
+    if isinstance(predictions, list):
+        for segment in predictions:
+            if isinstance(segment, dict) and "mask" in segment:
+                mask = segment["mask"]
+                result[mask > 0] = (
+                    0.5 * result[mask > 0] + 0.5 * np.array([0, 255, 0])
+                ).astype(np.uint8)
+
+    return result
