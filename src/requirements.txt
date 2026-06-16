@@ -15,4 +15,4 @@ seaborn>=0.11.0
 gradio==4.19.2
 
 # Ultralytics-----------------------------------
-ultralytics == 8.0.120
+ultralytics==8.4.68

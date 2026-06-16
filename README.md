@@ -43,6 +43,7 @@ Download one of the model checkpoints from the official repositories:
 
 - [YOSO Checkpoints](https://github.com/hujiecpp/YOSO/?tab=readme-ov-file#model-zoo)
 - [PanopticFCN Checkpoints](https://github.com/dvlab-research/PanopticFCN#results)
+- [YOLOv26 Checkpoints](https://github.com/ultralytics/ultralytics)
 
 Place the downloaded `.pth` model file into the `/include` directory of this repository. Then, update the path to the model in the corresponding [configuration file](/config/) under `config/cfg_[model].yaml`.
 
@@ -63,6 +64,7 @@ You can run the below launch files (accessible from `/launch` folder):
 
 - **YOSO**: `ros2 launch segmenter_ros segmenter_yoso.launch`
 - **PanopticFCN**: `ros2 launch segmenter_ros segmenter_pFCN.launch`
+- **YOLOv26**: `ros2 launch segmenter_ros segmenter_yolo26.launch`
 
 ## 🔨 Configurations
 

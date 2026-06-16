@@ -1,10 +1,8 @@
 import torch
-import multiprocessing as mp
-from detectron2.config import get_cfg
-from detectron2.engine import DefaultPredictor
-from detectron2.projects.deeplab import add_deeplab_config
-from transformers import AutoImageProcessor, SegformerForSemanticSegmentation
-from utils.helpers import getRootAbsolutePath, getFilteredSegments
+import numpy as np
+from utils.helpers import getRootAbsolutePath
+from utils.helpers import getFilteredSegments
+from utils.helpers import getYOLOFilteredSegments
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -28,6 +26,8 @@ def pFCNInit(name: str, modelPath: str, configPath: str):
         The initialized model
     """
     # Import
+    from detectron2.config import get_cfg
+    from detectron2.engine import DefaultPredictor
     from panopticfcn import add_panopticfcn_config
     # Initialization
     print(f'Initializing "{name}" model ...')
@@ -82,6 +82,8 @@ def yosoInit(name: str, modelPath: str, configPath: str, confidence=0.5, overlap
         The configuration to be later used in visualization
     """
     # Import
+    from detectron2.config import get_cfg
+    from detectron2.engine import DefaultPredictor
     from yoso.utils import addYosoConfig
     from yoso.yoso.segmentator import YOSO
     # Initialization
@@ -129,4 +131,40 @@ def yosoSegmenter(image, model, classes):
     """
     predictions = model(image)
     filteredSegments, filteredProbs = getFilteredSegments(predictions, classes)
+    return filteredSegments, filteredProbs
+
+
+def yoloSegmenter(image, model, classes):
+    """
+    Segments the given image using YOLO segmentation.
+
+    Parameters
+    -------
+    image: Mat
+        The input image for segmentation.
+    model: YOLO
+        An Ultralytics YOLO segmentation model.
+    classes: list
+        The list of classes to be filtered.
+
+    Returns
+    -------
+    filteredSegments: dict
+        The dictionary of filtered segments.
+    filteredProbs: np.ndarray
+        The matrix of per-pixel probabilities of shape (H, W, C).
+    """
+    predictions = model.predict(
+        source=image,
+        task="semantic",
+        imgsz=640,
+        verbose=False,
+    )
+
+    filteredSegments, filteredProbs = getYOLOFilteredSegments(
+        predictions,
+        classes,
+        image.shape[:2]
+    )
+
     return filteredSegments, filteredProbs

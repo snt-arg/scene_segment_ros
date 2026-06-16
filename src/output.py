@@ -1,8 +1,6 @@
 import cv2
 import torch
 import numpy as np
-from detectron2.data import MetadataCatalog
-from detectron2.utils.visualizer import Visualizer, ColorMode
 
 
 def pFCNVisualizer(image, predictions, cfg):
@@ -23,12 +21,18 @@ def pFCNVisualizer(image, predictions, cfg):
     result: Mat
         The segmented visualized image
     """
+    # Import
+    from detectron2.data import MetadataCatalog
+    from detectron2.utils.visualizer import Visualizer, ColorMode
+
     # Init
     panoptic_seg, segments_info = predictions["panoptic_seg"]
-    visualizer = Visualizer(image[:, :, ::-1],
-                            MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
+    visualizer = Visualizer(
+        image[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2
+    )
     result = visualizer.draw_panoptic_seg_predictions(
-        panoptic_seg.to("cpu"), segments_info)
+        panoptic_seg.to("cpu"), segments_info
+    )
     # Return
     return result.get_image()[:, :, ::-1]
 
@@ -49,14 +53,13 @@ def entropyVisualizer(predictions):
         The uncertainty image
     """
     # Compute the entropy
-    entropy = -torch.sum(predictions *
-                         torch.log(predictions+1e-10), axis=0) * 255
+    entropy = -torch.sum(predictions * torch.log(predictions + 1e-10), axis=0) * 255
     entropy = entropy.to("cpu").numpy().astype(np.uint8)
     # Generate color map from probabilities (black 0 - white 1)
-    colorMap = cv2.applyColorMap(
-        (entropy).astype(np.uint8), cv2.COLORMAP_BONE)
+    colorMap = cv2.applyColorMap((entropy).astype(np.uint8), cv2.COLORMAP_BONE)
     # Return
     return colorMap
+
 
 def yosoVisualizer(image, predictions, cfg):
     """
@@ -71,14 +74,75 @@ def yosoVisualizer(image, predictions, cfg):
     predictions: dict
         Dict of segmentation results
     """
+    # Import
+    from detectron2.data import MetadataCatalog
+    from detectron2.utils.visualizer import Visualizer, ColorMode
+
     # Generate color map from predictions (labels)
     metadata = MetadataCatalog.get(
-        cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
+        cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused"
+    )
     visualizer = Visualizer(image, metadata, instance_mode=ColorMode.IMAGE)
     panopticSeg, segments_info = predictions["panoptic_seg"]
     ranModel = visualizer.draw_panoptic_seg_predictions(
-        panopticSeg.to(torch.device("cpu")), segments_info)
+        panopticSeg.to(torch.device("cpu")), segments_info
+    )
     # Extract the image
     colorMap = ranModel.get_image()[:, :, ::-1]
     # Return
+    return colorMap
+
+
+def yoloVisualizer(image, predictions):
+    """
+    Visualizes YOLO-style filtered segmentation results.
+
+    Parameters
+    -------
+    image: Mat
+        Original BGR image.
+    predictions: dict
+        Filtered YOLO segmentation results.
+
+    Returns
+    -------
+    colorMap: Mat
+        BGR visualization image.
+    """
+    colorMap = image.copy()
+
+    panopticSeg, segmentsInfo = predictions["panoptic_seg"]
+
+    if isinstance(panopticSeg, torch.Tensor):
+        panopticSeg = panopticSeg.cpu().numpy()
+
+    for segment in segmentsInfo:
+        segmentId = segment["id"]
+        categoryId = segment["category_id"]
+
+        mask = panopticSeg == segmentId
+
+        if not np.any(mask):
+            continue
+
+        color = np.array(
+            [
+                (37 * categoryId + 17) % 255,
+                (67 * categoryId + 29) % 255,
+                (97 * categoryId + 43) % 255,
+            ],
+            dtype=np.uint8,
+        )
+
+        overlay = colorMap.copy()
+        overlay[mask] = color
+
+        colorMap = cv2.addWeighted(
+            overlay,
+            0.45,
+            colorMap,
+            0.55,
+            0,
+        )
+
     return colorMap
