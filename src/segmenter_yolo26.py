@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
 
 import torch
-from pathlib import Path
-
-import rclpy
 from rclpy.node import Node
-
+from ultralytics import YOLO
 from std_msgs.msg import Header
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-from ultralytics import YOLO
-
-from modelRunner import yoloSegmenter
 from output import yoloVisualizer
 from output import entropyVisualizer
+from modelRunner import yoloSegmenter
 
 from utils.helpers import cleanMemory, monitorParams
 from utils.semantic_utils import probabilities2ROSMsg
@@ -37,18 +32,19 @@ class Segmenter(Node):
         cleanMemory()
 
         # Configuration parameters
-        ground_ids = self.get_parameter(
-            "params.output.classes.ground"
-        ).get_parameter_value().integer_array_value.tolist()
+        ground_ids = (
+            self.get_parameter("params.output.classes.ground")
+            .get_parameter_value()
+            .integer_array_value.tolist()
+        )
 
-        wall_ids = self.get_parameter(
-            "params.output.classes.wall"
-        ).get_parameter_value().integer_array_value.tolist()
+        wall_ids = (
+            self.get_parameter("params.output.classes.wall")
+            .get_parameter_value()
+            .integer_array_value.tolist()
+        )
 
-        self.classes = [
-            ground_ids,
-            wall_ids
-        ]
+        self.classes = [ground_ids, wall_ids]
 
         self.conf = (
             self.get_parameter("params.model_params.conf")
@@ -112,25 +108,12 @@ class Segmenter(Node):
         self.model = YOLO(modelPath, task="semantic")
 
         # Subscribers (to vS-Graphs)
-        self.create_subscription(
-            VSGraphDataMsg,
-            rawImageTopic,
-            self.segmentation,
-            10
-        )
+        self.create_subscription(VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
-        self.publisherSeg = self.create_publisher(
-            SegmenterDataMsg,
-            segImageTopic,
-            10
-        )
+        self.publisherSeg = self.create_publisher(SegmenterDataMsg, segImageTopic, 10)
 
-        self.publisherSegVis = self.create_publisher(
-            Image,
-            segImageVisTopic,
-            10
-        )
+        self.publisherSegVis = self.create_publisher(Image, segImageVisTopic, 10)
 
         # ROS Bridge
         self.bridge = CvBridge()
@@ -146,9 +129,7 @@ class Segmenter(Node):
 
             # Processing
             filteredSegments, filteredProbs = yoloSegmenter(
-                cvImage,
-                self.model,
-                self.classes
+                cvImage, self.model, self.classes
             )
 
             if self.visualize:
@@ -163,9 +144,7 @@ class Segmenter(Node):
 
             # Convert to ROS message
             pcdProbabilities = probabilities2ROSMsg(
-                filteredProbs,
-                imageMessage.header.stamp,
-                imageMessage.header.frame_id
+                filteredProbs, imageMessage.header.stamp, imageMessage.header.frame_id
             )
 
             # Create a header with the current time
@@ -180,13 +159,11 @@ class Segmenter(Node):
             segmenterData.key_frame_id = key_frame_id
             if self.visualize:
                 segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
-                    segmented_image,
-                    "bgr8"
+                    segmented_image, "bgr8"
                 )
 
             segmenterData.segmented_image_uncertainty = self.bridge.cv2_to_imgmsg(
-                segmentedUncImage,
-                "bgr8"
+                segmentedUncImage, "bgr8"
             )
 
             segmenterData.segmented_image_probability = pcdProbabilities
@@ -211,11 +188,11 @@ def main(args=None):
         node = Segmenter()
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info(
-            '[Segmenter] Node interrupted by user! Exiting...')
+        node.get_logger().info("[Segmenter] Node interrupted by user! Exiting...")
     except Exception as e:
-        rclpy.logging.get_logger('YOLO26').error(
-            f'[Segmenter] Unhandled exception: {e}')
+        rclpy.logging.get_logger("YOLO26").error(
+            f"[Segmenter] Unhandled exception: {e}"
+        )
     finally:
         if node is not None:
             node.destroy_node()
