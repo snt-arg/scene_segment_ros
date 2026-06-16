@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import numpy as np
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Header
@@ -11,6 +12,23 @@ from output import yosoVisualizer, entropyVisualizer
 from utils.semantic_utils import probabilities2ROSMsg
 from ament_index_python import get_package_share_directory
 from segmenter_ros.msg import SegmenterDataMsg, VSGraphDataMsg
+
+
+def image_msg_to_bgr8(msg):
+    if msg.encoding.lower() != "bgr8":
+        raise ValueError(f"Unsupported image encoding '{msg.encoding}'")
+
+    expected_step = msg.width * 3
+    expected_size = msg.height * expected_step
+    if msg.step < expected_step or len(msg.data) < msg.height * msg.step:
+        raise ValueError(
+            f"Invalid bgr8 image buffer: size={msg.width}x{msg.height}, "
+            f"step={msg.step}, data_len={len(msg.data)}"
+        )
+
+    image = np.frombuffer(msg.data, dtype=np.uint8).reshape(msg.height, msg.step)
+    image = image[:, :expected_step].reshape(msg.height, msg.width, 3)
+    return np.ascontiguousarray(image)
 
 
 class Segmenter(Node):
@@ -110,7 +128,24 @@ class Segmenter(Node):
             key_frame_image = imageMessage.key_frame_image
 
             # Convert the ROS Image message to a CV2 image
-            cvImage = self.bridge.imgmsg_to_cv2(key_frame_image, "bgr8")
+            try:
+                cvImage = self.bridge.imgmsg_to_cv2(key_frame_image, "bgr8")
+            except Exception as e:
+                self.get_logger().warn(
+                    f"imgmsg_to_cv2 failed. "
+                    f"encoding={key_frame_image.encoding}, "
+                    f"size={key_frame_image.width}x{key_frame_image.height}, "
+                    f"step={key_frame_image.step}, "
+                    f"data_len={len(key_frame_image.data)}, "
+                    f"error={repr(e)}. Falling back to numpy conversion."
+                )
+                try:
+                    cvImage = image_msg_to_bgr8(key_frame_image)
+                except Exception as fallback_error:
+                    self.get_logger().error(
+                        f"numpy image conversion failed: {repr(fallback_error)}"
+                    )
+                    return
 
             # Processing
             filteredSegments, filteredProbs = yosoSegmenter(
@@ -128,8 +163,9 @@ class Segmenter(Node):
 
             # Create a header with the current time
             header = Header()
-            now = self.get_clock().now().to_msg()
-            header.stamp = now
+            # now = self.get_clock().now().to_msg()
+            # header.stamp = now
+            header.stamp = imageMessage.header.stamp
             header.frame_id = imageMessage.header.frame_id
 
             # Publish the processed image to vS-Graphs
@@ -173,7 +209,8 @@ def main(args=None):
     finally:
         if node is not None:
             node.destroy_node()
-
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == "__main__":
     main()

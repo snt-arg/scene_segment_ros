@@ -24,6 +24,7 @@ ament_export_dependencies(rosidl_default_runtime)
 
 # Install Python scripts
 install(PROGRAMS
+  src/segmenter_eomt.py
   src/segmenter_pFCN.py
   src/segmenter_yoso.py
   DESTINATION lib/${PROJECT_NAME}

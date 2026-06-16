@@ -82,3 +82,31 @@ def yosoVisualizer(image, predictions, cfg):
     colorMap = ranModel.get_image()[:, :, ::-1]
     # Return
     return colorMap
+
+
+def eomtVisualizer(image, predictions, cfg):
+    """
+    Visualizes EoMT panoptic output with a simple blended overlay.
+    """
+    panoptic_seg, segments_info = predictions["panoptic_seg"]
+    segmentation = panoptic_seg.to("cpu").numpy()
+    overlay = image.copy()
+
+    for segment in segments_info:
+        segment_id = segment["id"]
+        category_id = segment.get("category_id", 0)
+        mask = segmentation == segment_id
+        if not np.any(mask):
+            continue
+
+        color = np.array(
+            [
+                (53 * (category_id + 1)) % 255,
+                (97 * (category_id + 3)) % 255,
+                (193 * (category_id + 7)) % 255,
+            ],
+            dtype=np.uint8,
+        )
+        overlay[mask] = (0.45 * overlay[mask] + 0.55 * color).astype(np.uint8)
+
+    return overlay

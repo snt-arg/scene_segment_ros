@@ -1,0 +1,22 @@
+segmenter_ros:
+  ros__parameters:
+    params:
+      image_params:
+        image_size: 640
+      ros_topics:
+        raw_image_topic: "/vs_graphs/keyframe_image"
+        segmented_image_topic: "/camera/color/image_segment"
+        segmented_image_vis: "/camera/color/image_segment_vis"
+      model_params:
+        model_name: "EoMT"
+        model_path: "include/coco_panoptic_eomt_small_640_2x.safetensors"
+        model_config: "src/eomt/configs/dinov3/coco/panoptic/eomt_small_640_2x.yaml"
+        conf: 0.5
+        overlap: 0.9
+      output:
+        classes:
+          door: [86]
+          ground: [87, 122]
+          wall: [109, 110, 111, 112, 131]
+        # COCO labels reused for the panoptic EoMT COCO checkpoint.
+    visualize: true

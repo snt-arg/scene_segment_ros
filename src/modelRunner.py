@@ -1,10 +1,17 @@
+import sys
+import os
+os.environ["HF_HOME"] = "/opt/huggingface_cache" 
 import torch
+from PIL import Image
 import multiprocessing as mp
 from detectron2.config import get_cfg
 from detectron2.engine import DefaultPredictor
 from detectron2.projects.deeplab import add_deeplab_config
 from transformers import AutoImageProcessor, SegformerForSemanticSegmentation
 from utils.helpers import getRootAbsolutePath, getFilteredSegments
+
+# Add the current directory to Python path to allow importing local packages like eomt
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
@@ -128,5 +135,179 @@ def yosoSegmenter(image, model, classes):
         The matrix of per pixel probabilities of shape (W, H, C)
     """
     predictions = model(image)
+    filteredSegments, filteredProbs = getFilteredSegments(predictions, classes)
+    return filteredSegments, filteredProbs
+
+def eomtInit(
+    name: str,
+    modelPath: str,
+    configPath: str,
+    confidence: float = 0.8,
+    overlap: float = 0.8,
+):
+    """
+    Initializes an EoMT panoptic segmentation model using
+    the native EoMT (Detectron2-style) builder.
+
+    Parameters
+    ----------
+    name : str
+        Display name of the model.
+    modelPath : str
+        Path to EoMT weights (.safetensors).
+    configPath : str
+        Path to EoMT YAML config file.
+    confidence : float
+        Confidence threshold for panoptic post-processing.
+    overlap : float
+        Overlap mask area threshold for panoptic post-processing.
+    """
+    model_id = "tue-mps/coco_panoptic_eomt_small_640_2x"
+    from transformers import AutoImageProcessor, EomtForUniversalSegmentation
+    print(f'Initializing "{name}" model ...')
+
+    try:
+        processor = AutoImageProcessor.from_pretrained(model_id)
+        model = EomtForUniversalSegmentation.from_pretrained(
+            model_id,
+            low_cpu_mem_usage=True,
+            dtype=torch.float32,
+        ).to(DEVICE)
+    except Exception as e:
+        raise RuntimeError(
+            f"[eomtInit] Failed to load model '{model_id}'. "
+            f"Is the HuggingFace cache populated? Run the Dockerfile pre-download step. "
+            f"Original error: {e}"
+        ) from e
+
+    model.eval()
+    id2label = getattr(model.config, "id2label", {})
+    # HF sometimes stores keys as strings
+    if id2label and isinstance(next(iter(id2label.keys())), str):
+        id2label = {int(k): v for k, v in id2label.items()}
+    runtime_cfg = {
+        "confidence": confidence,
+        "overlap": overlap,
+        "id2label": id2label,
+    }
+    print('Model loaded and is ready to use!\n')
+    return model, processor, runtime_cfg
+
+def _build_eomt_semantic_logits(outputs, target_size):
+    """
+    Converts EoMT query outputs to per-class semantic logits.
+    """
+    class_logits = outputs.class_queries_logits
+    mask_logits = outputs.masks_queries_logits
+
+    class_probs = torch.softmax(class_logits, dim=-1)[..., :-1]
+    mask_probs = torch.sigmoid(mask_logits)
+    semantic_logits = torch.einsum("bqc,bqhw->bchw", class_probs, mask_probs)
+    semantic_logits = torch.nn.functional.interpolate(
+        semantic_logits,
+        size=target_size,
+        mode="bilinear",
+        align_corners=False,
+    )
+    return semantic_logits[0]
+
+
+def _normalize_eomt_segments_info(segments_info):
+    """
+    Aligns Hugging Face panoptic metadata to the Detectron2-style structure
+    """
+    normalized_segments = []
+    for segment in segments_info:
+        normalized = dict(segment)
+        if "category_id" not in normalized and "label_id" in normalized:
+            normalized["category_id"] = normalized["label_id"]
+        normalized_segments.append(normalized)
+    return normalized_segments
+
+
+def eomtSegmenter(image, model, processor, runtime_cfg, classes):
+    """
+    Segments the given image using EoMT and returns the same prediction format
+    used by the Detectron2-based backends.
+    
+    Parameters
+    ----------
+    image : np.ndarray
+        Input image as numpy array (BGR format, HxWx3)
+    model : torch.nn.Module
+        EoMT model
+    processor : ImageProcessor
+        Processor for image preprocessing
+    runtime_cfg : dict
+        Runtime configuration with confidence and overlap thresholds
+    classes : list
+        List of classes to filter
+        
+    Returns
+    -------
+    filteredSegments : dict
+        Dictionary of filtered segments
+    filteredProbs : np.ndarray
+        Per-pixel probabilities of shape (H, W, C)
+    """
+    if processor is None:
+        raise ValueError("Processor must be provided for EoMT segmentation")
+    
+    # Convert BGR to RGB if needed
+    rgb_image = image[:, :, ::-1] if image.shape[2] == 3 else image
+    pil_image = Image.fromarray(rgb_image.astype('uint8'))
+    target_size = (image.shape[0], image.shape[1])
+
+    # Preprocess image using processor
+    inputs = processor(images=pil_image, return_tensors="pt")
+    inputs = {key: value.to(DEVICE) for key, value in inputs.items()}
+
+    # Model inference
+    with torch.inference_mode():
+        outputs = model(**inputs)
+
+    # Post-process panoptic segmentation
+    try:
+        panoptic_preds = processor.post_process_panoptic_segmentation(
+            outputs,
+            target_sizes=[target_size],
+            threshold=runtime_cfg.get("confidence", 0.8),
+            overlap_mask_area_threshold=runtime_cfg.get("overlap", 0.8),
+        )[0]
+    except (AttributeError, NotImplementedError):
+        # Fallback for processors that don't have post_process_panoptic_segmentation
+        # Use semantic segmentation output directly
+        if hasattr(outputs, 'logits'):
+            sem_seg = torch.nn.functional.interpolate(
+                outputs.logits,
+                size=target_size,
+                mode="bilinear",
+                align_corners=False,
+            )[0]
+            predictions = {
+                "panoptic_seg": (
+                    torch.argmax(sem_seg, dim=0),
+                    [],
+                ),
+                "sem_seg": sem_seg,
+            }
+            filteredSegments, filteredProbs = getFilteredSegments(predictions, classes)
+            return filteredSegments, filteredProbs
+        raise ValueError("Model outputs not in expected format")
+
+    # Build semantic scores (confidence maps) from class and mask predictions
+    try:
+        semantic_scores = _build_eomt_semantic_logits(outputs, target_size)
+    except AttributeError:
+        # If outputs don't have the expected attributes, use sem_seg from panoptic_preds
+        semantic_scores = torch.zeros((len(classes), target_size[0], target_size[1]))
+
+    predictions = {
+        "panoptic_seg": (
+            panoptic_preds["segmentation"].to("cpu"),
+            _normalize_eomt_segments_info(panoptic_preds["segments_info"]),
+        ),
+        "sem_seg": semantic_scores,
+    }
     filteredSegments, filteredProbs = getFilteredSegments(predictions, classes)
     return filteredSegments, filteredProbs

@@ -17,6 +17,7 @@ Benchmark results for this framework using various segmentation libraries can be
 
 - ✅ **YOSO** (**[link](https://github.com/hujiecpp/YOSO)**) – Lightweight, real-time panoptic segmentation model optimized for speed and efficiency.
 - ✅ **PanopticFCN** (**[link](https://github.com/dvlab-research/PanopticFCN)**) – A unified framework for panoptic segmentation, combining both semantic ("stuff") and instance ("things") recognition in real time.
+- ✅ **EoMT** (**[link](https://github.com/tue-mps/eomt)**) – Encoder-only mask transformer with Hugging Face inference support for panoptic segmentation.
 
 ## 📚 Preparation
 
@@ -43,6 +44,7 @@ Download one of the model checkpoints from the official repositories:
 
 - [YOSO Checkpoints](https://github.com/hujiecpp/YOSO/?tab=readme-ov-file#model-zoo)
 - [PanopticFCN Checkpoints](https://github.com/dvlab-research/PanopticFCN#results)
+- [EoMT Checkpoints](https://huggingface.co/tue-mps/coco_panoptic_eomt_small_640_2x)
 
 Place the downloaded `.pth` model file into the `/include` directory of this repository. Then, update the path to the model in the corresponding [configuration file](/config/) under `config/cfg_[model].yaml`.
 
@@ -57,12 +59,19 @@ git clone https://github.com/facebookresearch/detectron2.git
 python -m pip install -e detectron2
 ```
 
+For **EoMT**, install a recent `transformers` release with EoMT support:
+
+```bash
+python3 -m pip install "transformers>=4.57.0"
+```
+
 ## 🚀 Launch the Code
 
 You can run the below launch files (accessible from `/launch` folder):
 
 - **YOSO**: `ros2 launch segmenter_ros segmenter_yoso.launch`
 - **PanopticFCN**: `ros2 launch segmenter_ros segmenter_pFCN.launch`
+- **EoMT**: `ros2 launch segmenter_ros segmenter_eomt.launch`
 
 ## 🔨 Configurations
 
