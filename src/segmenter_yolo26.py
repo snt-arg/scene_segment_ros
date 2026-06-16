@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import torch
+import rclpy
 from rclpy.node import Node
 from ultralytics import YOLO
 from std_msgs.msg import Header
@@ -44,7 +45,13 @@ class Segmenter(Node):
             .integer_array_value.tolist()
         )
 
-        self.classes = [ground_ids, wall_ids]
+        door_ids = (
+            self.get_parameter("params.output.classes.door")
+            .get_parameter_value()
+            .integer_array_value.tolist()
+        )
+
+        self.classes = [ground_ids, wall_ids, door_ids]
 
         self.conf = (
             self.get_parameter("params.model_params.conf")
@@ -108,12 +115,15 @@ class Segmenter(Node):
         self.model = YOLO(modelPath, task="semantic")
 
         # Subscribers (to vS-Graphs)
-        self.create_subscription(VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
+        self.create_subscription(
+            VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
-        self.publisherSeg = self.create_publisher(SegmenterDataMsg, segImageTopic, 10)
+        self.publisherSeg = self.create_publisher(
+            SegmenterDataMsg, segImageTopic, 10)
 
-        self.publisherSegVis = self.create_publisher(Image, segImageVisTopic, 10)
+        self.publisherSegVis = self.create_publisher(
+            Image, segImageVisTopic, 10)
 
         # ROS Bridge
         self.bridge = CvBridge()
@@ -188,7 +198,8 @@ def main(args=None):
         node = Segmenter()
         rclpy.spin(node)
     except KeyboardInterrupt:
-        node.get_logger().info("[Segmenter] Node interrupted by user! Exiting...")
+        node.get_logger().info(
+            "[Segmenter] Node interrupted by user! Exiting...")
     except Exception as e:
         rclpy.logging.get_logger("YOLO26").error(
             f"[Segmenter] Unhandled exception: {e}"

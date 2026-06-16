@@ -35,4 +35,16 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install modules
+install(FILES
+  src/modelRunner.py
+  src/output.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+    src/utils
+    DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
