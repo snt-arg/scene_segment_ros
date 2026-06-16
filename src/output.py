@@ -1,8 +1,6 @@
 import cv2
 import torch
 import numpy as np
-from detectron2.data import MetadataCatalog
-from detectron2.utils.visualizer import Visualizer, ColorMode
 
 
 def pFCNVisualizer(image, predictions, cfg):
@@ -23,6 +21,9 @@ def pFCNVisualizer(image, predictions, cfg):
     result: Mat
         The segmented visualized image
     """
+    # Import
+    from detectron2.data import MetadataCatalog
+    from detectron2.utils.visualizer import Visualizer, ColorMode
     # Init
     panoptic_seg, segments_info = predictions["panoptic_seg"]
     visualizer = Visualizer(image[:, :, ::-1],
@@ -72,6 +73,9 @@ def yosoVisualizer(image, predictions, cfg):
     predictions: dict
         Dict of segmentation results
     """
+    # Import
+    from detectron2.data import MetadataCatalog
+    from detectron2.utils.visualizer import Visualizer, ColorMode
     # Generate color map from predictions (labels)
     metadata = MetadataCatalog.get(
         cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused")
@@ -87,38 +91,51 @@ def yosoVisualizer(image, predictions, cfg):
 
 def yoloVisualizer(image, predictions):
     """
-    Visualizes YOLO segmentation output.
-
-    This function accepts either:
-    1. an Ultralytics Results object, or
-    2. a dict/list-like custom filtered output if modelRunner creates one.
+    Visualizes YOLO-style filtered segmentation results.
 
     Parameters
-    ----------
-    image:
-        Original OpenCV BGR image.
-    predictions:
-        YOLO prediction/filtered segment output.
+    -------
+    image: Mat
+        Original BGR image.
+    predictions: dict
+        Filtered YOLO segmentation results.
 
     Returns
     -------
-    result:
+    colorMap: Mat
         BGR visualization image.
     """
+    colorMap = image.copy()
 
-    # Case 1: Ultralytics Results object
-    if hasattr(predictions, "plot"):
-        return predictions.plot()
+    panopticSeg, segmentsInfo = predictions["panoptic_seg"]
 
-    # Case 2: list of binary masks
-    result = image.copy()
+    if isinstance(panopticSeg, torch.Tensor):
+        panopticSeg = panopticSeg.cpu().numpy()
 
-    if isinstance(predictions, list):
-        for segment in predictions:
-            if isinstance(segment, dict) and "mask" in segment:
-                mask = segment["mask"]
-                result[mask > 0] = (
-                    0.5 * result[mask > 0] + 0.5 * np.array([0, 255, 0])
-                ).astype(np.uint8)
+    for segment in segmentsInfo:
+        segmentId = segment["id"]
+        categoryId = segment["category_id"]
 
-    return result
+        mask = panopticSeg == segmentId
+
+        if not np.any(mask):
+            continue
+
+        color = np.array([
+            (37 * categoryId + 17) % 255,
+            (67 * categoryId + 29) % 255,
+            (97 * categoryId + 43) % 255,
+        ], dtype=np.uint8)
+
+        overlay = colorMap.copy()
+        overlay[mask] = color
+
+        colorMap = cv2.addWeighted(
+            overlay,
+            0.45,
+            colorMap,
+            0.55,
+            0,
+        )
+
+    return colorMap
