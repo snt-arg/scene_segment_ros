@@ -5,7 +5,7 @@ import torchvision
 import numpy as np
 import cv2
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 def monitorParams():
@@ -48,8 +48,7 @@ def getRootAbsolutePath(relativePath: str):
     # Get the root directory of the repository
     root = os.path.dirname(os.path.dirname(scriptDirectory))
     # Get the absolute path of the current directory
-    absolutePath = os.path.abspath(
-        os.path.join(root, relativePath))
+    absolutePath = os.path.abspath(os.path.join(root, relativePath))
     # Return
     return absolutePath
 
@@ -70,7 +69,7 @@ def getFilteredSegments(predictions: dict, classes: list):
     filteredSegments: list
         The list of filtered segments
     filteredProbs: np.ndarray
-        The matrix of per-pixel probabilities of the shape (H, W, C) 
+        The matrix of per-pixel probabilities of the shape (H, W, C)
     """
     # Initialize
     newSegmentInfo = []
@@ -98,16 +97,23 @@ def getFilteredSegments(predictions: dict, classes: list):
 
     # Get probabilities and filter them
     # if there are lists in the classes list, need to add those logits together
-    filteredProbs = torch.zeros(size=(
-        filteredSegments["sem_seg"].shape[1], filteredSegments["sem_seg"].shape[2], len(classes)))
+    filteredProbs = torch.zeros(
+        size=(
+            filteredSegments["sem_seg"].shape[1],
+            filteredSegments["sem_seg"].shape[2],
+            len(classes),
+        )
+    )
     permutedProbs = torch.permute(filteredSegments["sem_seg"], (1, 2, 0))
     for i, c in enumerate(classes):
         if isinstance(c, list):
             filteredProbs[:, :, i] = torch.sum(
-                permutedProbs.index_select(-1, torch.tensor(c).to(device)), dim=-1).squeeze(-1)
+                permutedProbs.index_select(-1, torch.tensor(c).to(device)), dim=-1
+            ).squeeze(-1)
         else:
             filteredProbs[:, :, i] = permutedProbs.index_select(
-                -1, torch.tensor([c]).to(device)).squeeze(-1)
+                -1, torch.tensor([c]).to(device)
+            ).squeeze(-1)
 
     filteredProbs = filteredProbs.cpu().detach().numpy()
 
@@ -174,12 +180,14 @@ def getYOLOFilteredSegments(predictions, classes, image_shape):
         filteredProbs[:, :, outputClassId][classMask] = 1.0
         outputMask[classMask] = outputClassId + 1
 
-        segmentsInfo.append({
-            "id": outputClassId + 1,
-            "category_id": outputClassId,
-            "isthing": False,
-            "score": 1.0,
-        })
+        segmentsInfo.append(
+            {
+                "id": outputClassId + 1,
+                "category_id": outputClassId,
+                "isthing": False,
+                "score": 1.0,
+            }
+        )
 
     filteredSegments = {
         "sem_seg": torch.from_numpy(filteredProbs).permute(2, 0, 1),
