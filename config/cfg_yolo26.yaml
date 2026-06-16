@@ -19,6 +19,7 @@ segmenter_ros:
         classes:
           ground: [0, 1, 9]
           wall: [2, 3]
+          door: [86]
         # 💡 [Coco Classes] wall: {109, 110, 111, 112, 131}, ground: {87, 122},
         #                   ceiling: {118}, door: {86}, window: {114, 115}
     visualize: true
