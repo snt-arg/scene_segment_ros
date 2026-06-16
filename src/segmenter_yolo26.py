@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import torch
+import rclpy
 from rclpy.node import Node
 from ultralytics import YOLO
 from std_msgs.msg import Header
