@@ -26,6 +26,7 @@ install(PROGRAMS
   src/segmenter_pFCN.py
   src/segmenter_yoso.py
   src/segmenter_yolo26.py
+  src/frame_segmenter_yolo26.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

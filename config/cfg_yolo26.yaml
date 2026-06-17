@@ -5,20 +5,16 @@ segmenter_ros:
         image_size: 640
       ros_topics:
         # Subscriber
-        raw_image_topic: "/vs_graphs/keyframe_image"
+        raw_image_topic: "/camera/realsense/color/image_raw"
         # Publisher
-        segmented_image_topic: "/camera/color/image_segment"
-        segmented_image_vis: "/camera/color/image_segment_vis"
+        instance_mask_topic: "/camera/color/image_instance_masks"
       model_params:
         model_name: "YOLO26"
-        model_path: "include/yolo26n-sem.pt"
-        # model_config: "src/yoso/config/coco/YOSO-R50.yaml"
+        model_path: "include/yolo26n-seg.pt"
         conf: 0.5
-        overlap: 0.98
       output:
         classes:
-          ground: [0, 1, 9]
-          wall: [2, 3]
-        # 💡 [Coco Classes] wall: {109, 110, 111, 112, 131}, ground: {87, 122},
-        #                   ceiling: {118}, door: {86}, window: {114, 115}
-    visualize: true
+          movable: [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+        # [COCO movable classes] person, bicycle, car, motorcycle, airplane, bus,
+        # train, truck, boat, and animals: bird, cat, dog, horse, sheep, cow,
+        # elephant, bear, zebra, giraffe.
