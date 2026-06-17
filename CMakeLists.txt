@@ -11,6 +11,8 @@ find_package(sensor_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
+  "msg/InstanceMask.msg"
+  "msg/InstanceMaskArray.msg"
   "msg/VSGraphDataMsg.msg"
   "msg/SegmenterDataMsg.msg"
 )
