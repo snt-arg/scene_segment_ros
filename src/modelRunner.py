@@ -158,9 +158,6 @@ def yoloInit(name: str, modelPath: str, configPath: str = "", confidence=0.5):
     """
     from ultralytics import YOLO
 
-    print(f'Initializing "{name}" model ...')
-    print(f"Using model path: {modelPath}")
-
     model = YOLO(modelPath)
 
     cfg = {
@@ -170,7 +167,6 @@ def yoloInit(name: str, modelPath: str, configPath: str = "", confidence=0.5):
         "device": 0 if DEVICE.type == "cuda" else "cpu",
     }
 
-    print("Model loaded and is ready to use!\n")
     return model, cfg
 
 

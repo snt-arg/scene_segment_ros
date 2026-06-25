@@ -159,7 +159,7 @@ class Segmenter(Node):
                 )
 
             segmentedUncImage = entropyVisualizer(
-                torch.from_numpy(filteredProbs).permute(2, 0, 1)
+                filteredSegments["sem_seg"]
             )
 
             # Convert to ROS message
@@ -177,13 +177,16 @@ class Segmenter(Node):
             segmenterData = SegmenterDataMsg()
             segmenterData.header = header
             segmenterData.key_frame_id = key_frame_id
+
             if self.visualize:
                 segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
-                    segmented_image, "bgr8"
+                    segmented_image,
+                    "bgr8"
                 )
 
             segmenterData.segmented_image_uncertainty = self.bridge.cv2_to_imgmsg(
-                segmentedUncImage, "bgr8"
+                segmentedUncImage,
+                "bgr8"
             )
 
             segmenterData.segmented_image_probability = pcdProbabilities
