@@ -11,15 +11,14 @@ segmenter_ros:
         segmented_image_vis: "/camera/color/image_segment_vis"
       model_params:
         model_name: "YOLO26"
-        model_path: "include/yolo26n-sem.pt"
-        # model_config: "src/yoso/config/coco/YOSO-R50.yaml"
+        model_path: "include/yolo26n-sem-ADE20K.pt"
         conf: 0.5
         overlap: 0.98
       output:
         classes:
-          ground: [0, 1, 9]
-          wall: [2, 3]
-          door: [86]
+          door: [14]
+          ground: [3, 6, 11]
+          wall: [0, 1, 19]
         # 💡 [Coco Classes] wall: {109, 110, 111, 112, 131}, ground: {87, 122},
         #                   ceiling: {118}, door: {86}, window: {114, 115}
     visualize: true
