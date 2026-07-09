@@ -5,7 +5,7 @@ segmenter_ros:
         image_size: 640
       ros_topics:
         # Subscriber
-        raw_image_topic: "/vs_graphs/keyframe_image"
+        raw_image_topic: "/camera/realsense/color/image_raw"
         # Publisher
         segmented_image_topic: "/camera/color/image_segment"
         segmented_image_vis: "/camera/color/image_segment_vis"

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from email.mime import image
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Header
@@ -92,7 +94,7 @@ class Segmenter(Node):
 
         # Subscribers (to vS-Graphs)
         self.create_subscription(
-            VSGraphDataMsg, rawImageTopic, self.segmentation, 10)
+            Image, rawImageTopic, self.segmentation, 10)
 
         # Publishers (for vS-Graphs)
         self.publisherSeg = self.create_publisher(
@@ -106,11 +108,11 @@ class Segmenter(Node):
     def segmentation(self, imageMessage):
         try:
             # Parse the input data
-            key_frame_id = imageMessage.key_frame_id
-            key_frame_image = imageMessage.key_frame_image
-
+            # key_frame_id = imageMessage.key_frame_id
+            # key_frame_image = imageMessage.key_frame_image
+            inputHeader = imageMessage.header
             # Convert the ROS Image message to a CV2 image
-            cvImage = self.bridge.imgmsg_to_cv2(key_frame_image, "bgr8")
+            cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
             # Processing
             filteredSegments, filteredProbs = yosoSegmenter(
@@ -123,19 +125,19 @@ class Segmenter(Node):
 
             # Convert to ROS message
             pcdProbabilities = probabilities2ROSMsg(
-                filteredProbs, imageMessage.header.stamp, imageMessage.header.frame_id
+                filteredProbs, inputHeader.stamp, inputHeader.frame_id
             )
 
             # Create a header with the current time
             header = Header()
             now = self.get_clock().now().to_msg()
-            header.stamp = now
-            header.frame_id = imageMessage.header.frame_id
+            header.stamp = inputHeader.stamp
+            header.frame_id = inputHeader.frame_id
 
             # Publish the processed image to vS-Graphs
             segmenterData = SegmenterDataMsg()
             segmenterData.header = header
-            segmenterData.key_frame_id = key_frame_id
+            # segmenterData.key_frame_id = key_frame_id
             if self.visualize:
                 segmenterData.segmented_image = self.bridge.cv2_to_imgmsg(
                     segmented_image, "bgr8"

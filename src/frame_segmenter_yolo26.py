@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import os
 import rclpy
+from time import perf_counter
 from rclpy.node import Node
 from ultralytics import YOLO
 from sensor_msgs.msg import Image
@@ -13,6 +14,20 @@ from segmenter_ros.msg import InstanceMask, InstanceMaskArray
 
 from utils.helpers import cleanMemory, monitorParams
 from ament_index_python import get_package_share_directory
+
+
+def allow_trusted_ultralytics_checkpoint_load():
+    if getattr(torch.load, "_vsgraphs_trusted_checkpoint_patch", False):
+        return
+
+    original_torch_load = torch.load
+
+    def torch_load_compat(*args, **kwargs):
+        kwargs.setdefault("weights_only", False)
+        return original_torch_load(*args, **kwargs)
+
+    torch_load_compat._vsgraphs_trusted_checkpoint_patch = True
+    torch.load = torch_load_compat
 
 
 class Segmenter(Node):
@@ -79,6 +94,7 @@ class Segmenter(Node):
         # Initial the segmentation module
         if not os.path.isabs(modelPath):
             modelPath = os.path.join(self.pkg_share_directory, modelPath)
+        allow_trusted_ultralytics_checkpoint_load()
         self.model = YOLO(modelPath, task="segment")
         self.model.to(self.device)
 
@@ -105,6 +121,7 @@ class Segmenter(Node):
             # Convert the ROS Image message to a CV2 image
             cvImage = self.bridge.imgmsg_to_cv2(imageMessage, "bgr8")
 
+            segmentationStart = perf_counter()
             predictions = self.model.predict(
                 source=cvImage,
                 task="segment",
@@ -112,6 +129,9 @@ class Segmenter(Node):
                 conf=self.conf,
                 device=self.device,
                 verbose=False,
+            )
+            self.get_logger().info(
+                f"[Segmenter] Segmentation took {(perf_counter() - segmentationStart) * 1000:.2f} ms"
             )
             movableMask, instanceMasks = self.movable_instance_masks(
                 predictions[0], cvImage.shape[:2], inputHeader
@@ -178,7 +198,15 @@ class Segmenter(Node):
                 instanceMask.roi.height = max(0, y2 - y1)
                 instanceMask.roi.do_rectify = False
 
-            maskMsg = self.bridge.cv2_to_imgmsg(binaryMask, "mono8")
+            roi = instanceMask.roi
+            if roi.width == 0 or roi.height == 0:
+                continue
+
+            maskCrop = binaryMask[
+                roi.y_offset : roi.y_offset + roi.height,
+                roi.x_offset : roi.x_offset + roi.width,
+            ]
+            maskMsg = self.bridge.cv2_to_imgmsg(maskCrop, "mono8")
             maskMsg.header = header
             instanceMask.mask = maskMsg
             outputMasks.instances.append(instanceMask)

@@ -66,6 +66,38 @@ You can run the below launch files (accessible from `/launch` folder):
 - **PanopticFCN**: `ros2 launch segmenter_ros segmenter_pFCN.launch`
 - **YOLOv26**: `ros2 launch segmenter_ros segmenter_yolo26.launch`
 
+## 🗂️ Offline Bag Augmentation
+
+The package also includes an offline MCAP bag augmenter for YOLOv26 segmentation. It reads a ROS2 bag in MCAP format, replays every original message into a new bag, and adds the same instance-mask outputs produced by the live `frame_segmenter_yolo26.py` node:
+
+- `instance_mask_topic` defaults to `/camera/color/image_instance_masks`
+- `instance_masks_array_topic` defaults to `/camera/color/image_instance_masks_array` when not provided
+
+### Usage
+
+```bash
+ros2 run segmenter_ros bag_segmenter_yolo26.py <input_bag> [output_bag]
+```
+
+Example:
+
+```bash
+ros2 run segmenter_ros bag_segmenter_yolo26.py /data/run01 /data/run01_augmented
+```
+
+### Optional Arguments
+
+- `--raw-image-topic`: input image topic to segment
+- `--instance-mask-topic`: output topic for the binary instance mask image
+- `--instance-masks-array-topic`: output topic for the `InstanceMaskArray` message
+- `--model-path`: YOLOv26 checkpoint path, relative to the package share directory by default
+- `--image-size`: inference image size
+- `--confidence`: YOLO confidence threshold
+- `--movable-class-ids`: class ids preserved as movable instances
+- `--overwrite`: replace the output bag if it already exists
+
+The offline script uses the same mask filtering and message population logic as the live YOLOv26 frame segmenter, so the augmented bag matches the runtime topic contents as closely as possible.
+
 ## 🔨 Configurations
 
 The system has different configurations for each of the segmentation libraries, accessible from [`config`](/config/) folder. In the table below, you can see these configurations in details.

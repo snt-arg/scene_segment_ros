@@ -5,13 +5,14 @@ segmenter_ros:
         image_size: 640
       ros_topics:
         # Subscriber
-        raw_image_topic: "/camera/realsense/color/image_raw"
+        raw_image_topic: "/camera/camera/color/image_raw"
         # Publisher
         instance_mask_topic: "/camera/color/image_instance_masks"
+        instance_masks_array_topic: "/camera/color/instance_masks"
       model_params:
         model_name: "YOLO26"
-        model_path: "include/yolo26n-seg.pt"
-        conf: 0.5
+        model_path: "include/yolo26s-seg.pt"
+        conf: 0.4
       output:
         classes:
           movable: [0, 1, 2, 3, 4, 5, 6, 7, 8, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
